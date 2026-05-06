@@ -1,0 +1,148 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  username  String   @unique
+  password  String
+  role      String   // "admin", "guru", "siswa", "wali"
+  avatar    String?
+  phone     String?
+  email     String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  // --- Field Khusus Siswa ---
+  nisn           String?  @unique
+  kelas          String?
+  jurusan        String?
+  faceDescriptor String?  // Disimpan sebagai String (JSON.stringify) karena SQLite tidak dukung Array
+  parentId       String?
+  isAlumni       Boolean  @default(false)
+  graduationYear Int?
+  deviceId       String?
+
+  // --- Field Khusus Guru ---
+  nip           String?  @unique
+  mataPelajaran String?  // Disimpan sebagai JSON string
+  kelasWali     String?
+
+  // --- Field Khusus Wali ---
+  studentIds String? // Disimpan sebagai JSON string ["id1", "id2"]
+  waNumber   String?
+
+  // --- Relasi ---
+  attendances   AttendanceRecord[]
+  permits       PermitRequest[]
+  notifications InAppNotification[]
+  auditLogs     AuditLog[]
+}
+
+model SchoolConfig {
+  id            String @id @default(uuid())
+  name          String
+  address       String
+  latitude      Float
+  longitude     Float
+  radius        Int
+  checkInStart  String
+  checkInEnd    String
+  checkOutStart String
+  checkOutEnd   String
+}
+
+model AttendanceRecord {
+  id          String   @id @default(uuid())
+  studentId   String
+  studentName String
+  kelas       String
+  date        String
+  status      String   // "hadir", "terlambat", "tidak_hadir", "izin", "sakit"
+  notes       String?
+
+  // Check-In Data (JSON stringified)
+  // { time, latitude, longitude, faceVerified, locationVerified }
+  checkIn     String?  
+  
+  // Check-Out Data (JSON stringified)
+  checkOut    String?  
+
+  student     User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+}
+
+model PermitRequest {
+  id             String   @id @default(uuid())
+  studentId      String
+  studentName    String
+  kelas          String
+  type           String   // "izin", "sakit", "dispensasi"
+  startDate      String
+  endDate        String
+  reason         String
+  attachmentUrl  String?
+  status         String   // "pending", "approved", "rejected"
+  approvedBy     String?
+  approvedAt     String?
+  rejectedReason String?
+  createdAt      DateTime @default(now())
+
+  student        User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+}
+
+model InAppNotification {
+  id        String   @id @default(uuid())
+  userId    String
+  title     String
+  message   String
+  type      String   // "info", "warning", "success", "danger"
+  isRead    Boolean  @default(false)
+  link      String?
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model AcademicEvent {
+  id          String   @id @default(uuid())
+  title       String
+  startDate   String
+  endDate     String
+  type        String   // "libur_nasional", "libur_sekolah", "ujian", "kegiatan", "rapat"
+  description String?
+  createdBy   String
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String
+  userName  String
+  role      String
+  action    String
+  target    String?
+  detail    String?
+  timestamp DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Announcement {
+  id          String   @id @default(uuid())
+  title       String
+  content     String
+  targetRoles String   // JSON string
+  targetKelas String?  // JSON string
+  priority    String
+  publishedAt String
+  expiresAt   String?
+  authorId    String
+  authorName  String
+}
