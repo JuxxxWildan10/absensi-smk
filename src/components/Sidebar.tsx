@@ -101,16 +101,15 @@ export default function Sidebar() {
       {/* Logo */}
       <div style={{ padding: "20px 20px 16px", borderBottom: "1px solid var(--border-glass)" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <div style={{
-              width: 34, height: 34, borderRadius: 10, background: "var(--gradient-primary)",
-              display: "flex", alignItems: "center", justifyContent: "center"
-            }}>
-              <Shield size={17} color="white" />
-            </div>
+          <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+            <img 
+              src="/logo-smk.jpg" 
+              alt="Logo SMK Arya Singasari" 
+              style={{ width: 36, height: 36, borderRadius: 8, objectFit: "contain", background: "white", padding: 2 }} 
+            />
             <div>
-              <div style={{ fontSize: 14, fontWeight: 800 }} className="gradient-text">AbsensiCerdas</div>
-              <div style={{ fontSize: 10, color: "var(--text-muted)" }}>Smart Attendance PWA</div>
+              <div style={{ fontSize: 13, fontWeight: 800, lineHeight: 1.2 }} className="gradient-text">SMK ARYA SINGASARI</div>
+              <div style={{ fontSize: 10, color: "var(--text-muted)", marginTop: 2 }}>Absensi Digital PWA</div>
             </div>
           </div>
           <NotificationBell />

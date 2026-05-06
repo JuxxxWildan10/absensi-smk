@@ -112,7 +112,7 @@ export default function RoleLoginPage({ params }: { params: Promise<{ role: stri
             Login <span className="gradient-text">{ROLE_LABELS[role]}</span>
           </h1>
           <p style={{ color: "var(--text-muted)", fontSize: 14, marginTop: 6 }}>
-            AbsensiCerdas Secure Portal
+            Portal Absensi SMK Arya Singasari
           </p>
         </div>
 

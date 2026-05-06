@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "AbsensiCerdas – Sistem Absensi Digital dengan AI",
+  title: "ABSENSI DIGITAL SMK ARYA SINGASARI",
   description:
     "Sistem absensi digital cerdas berbasis PWA dengan teknologi Geofencing dan Face Recognition. Notifikasi otomatis ke wali murid jika siswa tidak hadir.",
   keywords: ["absensi", "face recognition", "geofencing", "PWA", "sekolah", "siswa"],
@@ -11,10 +11,10 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "AbsensiCerdas",
+    title: "ABSENSI DIGITAL SMK ARYA SINGASARI",
   },
   openGraph: {
-    title: "AbsensiCerdas – Sistem Absensi Digital dengan AI",
+    title: "ABSENSI DIGITAL SMK ARYA SINGASARI",
     description: "Absensi digital cerdas dengan Geofencing & Face Recognition",
     type: "website",
     locale: "id_ID",

@@ -45,16 +45,14 @@ export default function LandingPage() {
         display: "flex", alignItems: "center", justifyContent: "space-between",
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <div style={{
-            width: 40, height: 40, borderRadius: 12,
-            background: "var(--gradient-primary)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-          }}>
-            <Shield size={22} color="white" />
-          </div>
+          <img 
+            src="/logo-smk.jpg" 
+            alt="Logo SMK" 
+            style={{ width: 44, height: 44, borderRadius: 10, objectFit: "contain", background: "white", padding: 2 }} 
+          />
           <div>
             <div style={{ fontSize: 18, fontWeight: 800, letterSpacing: "-0.3px" }}
-              className="gradient-text">AbsensiCerdas</div>
+              className="gradient-text">ABSENSI SMK ARYA SINGASARI</div>
             <div style={{ fontSize: 11, color: "var(--text-muted)" }}>Smart Attendance System</div>
           </div>
         </div>
@@ -200,8 +198,8 @@ export default function LandingPage() {
         flexWrap: "wrap", gap: 16,
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <Shield size={20} color="var(--accent-primary)" />
-          <span style={{ fontWeight: 700 }} className="gradient-text">AbsensiCerdas</span>
+          <img src="/logo-smk.jpg" alt="Logo" style={{ width: 20, height: 20, borderRadius: 4, objectFit: "contain", background: "white" }} />
+          <span style={{ fontWeight: 700 }} className="gradient-text">ABSENSI SMK ARYA SINGASARI</span>
           <span style={{ color: "var(--text-muted)", fontSize: 13 }}>© 2025 — Skripsi Sistem Informasi</span>
         </div>
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
