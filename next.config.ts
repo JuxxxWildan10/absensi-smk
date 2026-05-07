@@ -7,8 +7,8 @@ const withPWA = require("next-pwa")({
 });
 
 const nextConfig: NextConfig = {
-  /* config options here */
-  turbopack: {},
+  // next-pwa menggunakan webpack plugin, sehingga build harus menggunakan --webpack
+  // Turbopack hanya digunakan di mode dev (via `next dev --webpack` untuk konsistensi)
 };
 
 module.exports = withPWA(nextConfig);

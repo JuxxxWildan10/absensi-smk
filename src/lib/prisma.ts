@@ -1,6 +1,7 @@
 // ============================================================
 // AbsensiCerdas - Prisma Client Singleton (Prisma v5)
-// Mencegah multiple koneksi saat hot-reload di Next.js dev mode
+// Lazy initialization: koneksi dibuat saat pertama kali digunakan,
+// bukan saat module di-import (mencegah error saat `next build`)
 // ============================================================
 
 import { PrismaClient } from "@prisma/client";
@@ -9,10 +10,24 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
-export const prisma =
-  globalForPrisma.prisma ??
-  new PrismaClient({
-    log: process.env.NODE_ENV === "development" ? ["error", "warn"] : ["error"],
-  });
+function getPrismaClient(): PrismaClient {
+  if (!globalForPrisma.prisma) {
+    globalForPrisma.prisma = new PrismaClient({
+      log:
+        process.env.NODE_ENV === "development"
+          ? ["error", "warn"]
+          : ["error"],
+    });
+  }
+  return globalForPrisma.prisma;
+}
 
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+// Lazy proxy: property access triggers instantiation, not import
+export const prisma = new Proxy({} as PrismaClient, {
+  get(_target, prop) {
+    const client = getPrismaClient();
+    const value = (client as unknown as Record<string | symbol, unknown>)[prop];
+    if (typeof value === "function") return value.bind(client);
+    return value;
+  },
+});
