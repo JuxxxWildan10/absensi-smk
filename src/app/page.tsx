@@ -22,12 +22,7 @@ const STATS = [
   { label: "Kompatibilitas Device",    value: "99%",  icon: Smartphone },
 ];
 
-const DEMO_ACCOUNTS = [
-  { role: "Admin",      href: "/login/admin", email: "admin",         color: "#6366f1", hint: "username: admin" },
-  { role: "Guru",       href: "/login/guru",  email: "siti.rahayu",   color: "#8b5cf6", hint: "username: siti.rahayu" },
-  { role: "Siswa",      href: "/login/siswa", email: "rizky.pratama", color: "#10b981", hint: "username: rizky.pratama" },
-  { role: "Wali Murid", href: "/login/wali",  email: "pratama.ayah",  color: "#f59e0b", hint: "username: pratama.ayah" },
-];
+
 
 // Komponen Halaman Utama (Landing Page) PWA
 // Menampilkan penjelasan produk, fitur unggulan (Geofencing & AI), serta tautan (shortcut) login akun demo
@@ -165,29 +160,18 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── DEMO ACCOUNTS ── */}
-      {/* Seksi khusus untuk menyajikan akun-akun demo (Admin, Guru, Siswa, Wali) agar penguji mudah masuk */}
+      {/* ── CTA ── */}
       <section style={{ padding: "80px 48px", background: "var(--bg-secondary)" }}>
-        <div style={{ maxWidth: 800, margin: "0 auto", textAlign: "center" }}>
-          <h2 style={{ fontSize: 36, fontWeight: 800, marginBottom: 12 }}>
-            Coba <span className="gradient-text">Demo Sekarang</span>
+        <div style={{ maxWidth: 600, margin: "0 auto", textAlign: "center" }}>
+          <h2 style={{ fontSize: 36, fontWeight: 800, marginBottom: 16 }}>
+            Siap <span className="gradient-text">Mulai?</span>
           </h2>
-          <p style={{ color: "var(--text-secondary)", marginBottom: 40 }}>
-            Password semua akun: <code style={{ background: "rgba(99,102,241,0.15)", padding: "2px 8px", borderRadius: 6, color: "#818cf8" }}>password123</code>
+          <p style={{ color: "var(--text-secondary)", marginBottom: 36, fontSize: 16, lineHeight: 1.7 }}>
+            Hubungi administrator sekolah untuk mendapatkan akun akses sesuai peran Anda.
           </p>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(180px,1fr))", gap: 16 }}>
-            {DEMO_ACCOUNTS.map((acc) => (
-              <Link key={acc.role} href={acc.href} style={{ textDecoration: "none" }}>
-                <div className="glass-card" style={{ padding: 20, cursor: "pointer", textAlign: "left", border: `1px solid ${acc.color}30`, transition: "all 0.2s" }}
-                  onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => { e.currentTarget.style.transform = "translateY(-4px)"; e.currentTarget.style.background = `${acc.color}10`; }}
-                  onMouseLeave={(e: React.MouseEvent<HTMLDivElement>) => { e.currentTarget.style.transform = "none"; e.currentTarget.style.background = ""; }}>
-                  <div style={{ display: "inline-flex", padding: "4px 10px", borderRadius: 20, background: `${acc.color}20`, color: acc.color, fontSize: 12, fontWeight: 600, marginBottom: 12 }}>{acc.role}</div>
-                  <div style={{ fontSize: 12, color: "var(--text-muted)", wordBreak: "break-all" }}>{acc.hint}</div>
-                  <div style={{ fontSize: 11, color: acc.color, marginTop: 8, fontWeight: 600 }}>→ Masuk ke Portal</div>
-                </div>
-              </Link>
-            ))}
-          </div>
+          <Link href="/login" className="btn-primary" style={{ fontSize: 16, padding: "14px 36px" }}>
+            Masuk ke Sistem <ArrowRight size={18} />
+          </Link>
         </div>
       </section>
 
