@@ -11,13 +11,25 @@ const nextConfig: NextConfig = {
   // Turbopack hanya digunakan di mode dev (via `next dev --webpack` untuk konsistensi)
   webpack: (config, { isServer }) => {
     if (!isServer) {
-      // Abaikan modul Node.js (fs, encoding) di sisi client agar face-api.js bisa di-build
+      // Abaikan modul Node.js di sisi client agar face-api.js bisa di-build
       config.resolve.fallback = {
         ...config.resolve.fallback,
         fs: false,
         encoding: false,
+        crypto: false,
+        path: false,
+        os: false,
+        canvas: false,
       };
     }
+    
+    // Kadang fallback saja tidak cukup, kita gunakan alias
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      encoding: false,
+      fs: false,
+    };
+
     return config;
   },
 };
