@@ -9,13 +9,27 @@ import { id as idLocale } from "date-fns/locale";
 import { useState, useEffect } from "react";
 
 export default function WaliRiwayatPage() {
-  const { currentUser, records } = useStore();
+  const { currentUser, records, students } = useStore();
   const [statusFilter, setStatusFilter] = useState("all");
 
   if (!currentUser) return null;
-  const parent = DUMMY_PARENTS.find((p) => p.id === currentUser.id);
-  const studentIds = parent?.studentIds ?? [];
-  const myStudents = DUMMY_STUDENTS.filter((s) => studentIds.includes(s.id));
+
+  const getStudentIds = () => {
+    try {
+      if (typeof currentUser.studentIds === "string") {
+        return JSON.parse(currentUser.studentIds) as string[];
+      }
+      if (Array.isArray(currentUser.studentIds)) {
+        return currentUser.studentIds;
+      }
+    } catch {
+      return [];
+    }
+    return [];
+  };
+
+  const studentIds = getStudentIds();
+  const myStudents = students.filter((s) => studentIds.includes(s.id));
 
   const myRecords = records.filter((r) => studentIds.includes(r.studentId) &&
     (statusFilter === "all" || r.status === statusFilter));

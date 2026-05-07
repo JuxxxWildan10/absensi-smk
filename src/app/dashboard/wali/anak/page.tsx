@@ -16,9 +16,21 @@ export default function WaliAnakPage() {
   useEffect(() => setMounted(true), []);
   if (!currentUser || !mounted) return null;
 
-  // Mencari data spesifik wali murid yang sedang login
-  const parent = parents.find(p => p.id === currentUser.id);
-  const studentIds = parent?.studentIds ?? [];
+  const getStudentIds = () => {
+    try {
+      if (typeof currentUser.studentIds === "string") {
+        return JSON.parse(currentUser.studentIds) as string[];
+      }
+      if (Array.isArray(currentUser.studentIds)) {
+        return currentUser.studentIds;
+      }
+    } catch {
+      return [];
+    }
+    return [];
+  };
+
+  const studentIds = getStudentIds();
   // Mengambil data siswa (anak) yang memiliki relasi dengan wali murid ini
   const myStudents = students.filter(s => studentIds.includes(s.id));
 

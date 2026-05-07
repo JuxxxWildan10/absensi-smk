@@ -14,8 +14,21 @@ export default function WaliDashboard() {
 
   if (!currentUser || !mounted) return null;
 
-  const parent = parents.find((p) => p.id === currentUser.id);
-  const studentIds = parent?.studentIds ?? [];
+  const getStudentIds = () => {
+    try {
+      if (typeof currentUser.studentIds === "string") {
+        return JSON.parse(currentUser.studentIds) as string[];
+      }
+      if (Array.isArray(currentUser.studentIds)) {
+        return currentUser.studentIds;
+      }
+    } catch {
+      return [];
+    }
+    return [];
+  };
+
+  const studentIds = getStudentIds();
   const myStudents = students.filter((s) => studentIds.includes(s.id));
 
   const myRecords: AttendanceRecord[] = records.filter((r) =>
