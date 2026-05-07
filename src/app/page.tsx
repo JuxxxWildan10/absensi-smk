@@ -33,11 +33,9 @@ export default function LandingPage() {
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg-primary)" }}>
       {/* ── NAV ── */}
-      <nav style={{
-        position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
-        background: "rgba(10,14,26,0.8)", backdropFilter: "blur(20px)",
-        borderBottom: "1px solid var(--border-glass)", padding: "16px 48px",
-        display: "flex", alignItems: "center", justifyContent: "space-between",
+      <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-4 md:px-12 backdrop-blur-md border-b border-white/10"
+        style={{
+          background: "rgba(10,14,26,0.8)",
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <img 
@@ -63,10 +61,9 @@ export default function LandingPage() {
 
       {/* ── HERO ── */}
       {/* Bagian pengantar utama layar penuh dengan judul, deskripsi, dan tombol Call to Action (Mulai Sekarang) */}
-      <section style={{
-        minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center",
-        background: "var(--gradient-hero)", paddingTop: 80,
-        position: "relative", overflow: "hidden",
+      <section className="relative flex flex-col items-center justify-center min-h-screen pt-24 pb-16 px-4 overflow-hidden"
+        style={{
+        background: "var(--gradient-hero)",
       }}>
         {/* Background blobs */}
         <div style={{
@@ -116,10 +113,7 @@ export default function LandingPage() {
           </div>
 
           {/* Stats row */}
-          <div className="animate-fadeInUp stagger-4" style={{
-            display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 16,
-            marginTop: 64, maxWidth: 700, marginLeft: "auto", marginRight: "auto",
-          }}>
+          <div className="animate-fadeInUp stagger-4 grid grid-cols-2 md:grid-cols-4 gap-4 mt-16 max-w-3xl mx-auto">
             {STATS.map((s) => (
               <div key={s.label} className="glass-card" style={{ padding: "16px 12px", textAlign: "center" }}>
                 <div style={{ fontSize: 22, fontWeight: 800 }} className="gradient-text">{s.value}</div>
@@ -132,7 +126,7 @@ export default function LandingPage() {
 
       {/* ── FEATURES ── */}
       {/* Grid tampilan daftar fitur unggulan (Geofencing, Face Recognition, Notifikasi WhatsApp, PWA, dll) */}
-      <section id="fitur" style={{ padding: "96px 48px", maxWidth: 1200, margin: "0 auto" }}>
+      <section id="fitur" className="px-4 py-16 md:px-12 md:py-24 max-w-7xl mx-auto">
         <div style={{ textAlign: "center", marginBottom: 56 }}>
           <div style={{ fontSize: 13, color: "var(--accent-primary)", fontWeight: 600, marginBottom: 12, letterSpacing: 1 }}>
             FITUR UNGGULAN
@@ -161,7 +155,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── CTA ── */}
-      <section style={{ padding: "80px 48px", background: "var(--bg-secondary)" }}>
+      <section className="px-4 py-16 md:px-12 md:py-20" style={{ background: "var(--bg-secondary)" }}>
         <div style={{ maxWidth: 600, margin: "0 auto", textAlign: "center" }}>
           <h2 style={{ fontSize: 36, fontWeight: 800, marginBottom: 16 }}>
             Siap <span className="gradient-text">Mulai?</span>
@@ -176,11 +170,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── FOOTER ── */}
-      <footer style={{
-        borderTop: "1px solid var(--border-glass)", padding: "32px 48px",
-        display: "flex", justifyContent: "space-between", alignItems: "center",
-        flexWrap: "wrap", gap: 16,
-      }}>
+      <footer className="flex flex-col md:flex-row justify-between items-center gap-4 px-4 py-8 md:px-12 border-t border-white/10 text-center md:text-left">
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <img src="/logo-smk.jpg" alt="Logo" style={{ width: 20, height: 20, borderRadius: 4, objectFit: "contain", background: "white" }} />
           <span style={{ fontWeight: 700 }} className="gradient-text">ABSENSI SMK ARYA SINGASARI</span>
