@@ -175,6 +175,8 @@ export const useStore = create<AppState>()(
           if ((user as Student).kelas !== kelas) {
             return { success: false, message: "Kelas yang dipilih tidak sesuai dengan data siswa" };
           }
+          // -- FITUR DEVICE BINDING DINONAKTIFKAN SEMENTARA UNTUK TESTING/DEMO SKRIPSI --
+          /*
           if (deviceId) {
             const student = user as Student;
             if (student.deviceId && student.deviceId !== deviceId) {
@@ -185,6 +187,7 @@ export const useStore = create<AppState>()(
               get().updateStudent(student.id, { deviceId });
             }
           }
+          */
         }
 
         if (user.role === "siswa" && (user as Student).isAlumni)

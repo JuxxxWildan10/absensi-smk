@@ -30,6 +30,8 @@ export async function POST(req: NextRequest) {
       if (!kelas) return NextResponse.json({ success: false, message: "Harap pilih kelas Anda" }, { status: 400 });
       if (user.kelas !== kelas) return NextResponse.json({ success: false, message: "Kelas yang dipilih tidak sesuai data siswa" }, { status: 401 });
 
+      // -- FITUR DEVICE BINDING DINONAKTIFKAN SEMENTARA UNTUK TESTING/DEMO SKRIPSI --
+      /*
       if (deviceId) {
         if (user.deviceId && user.deviceId !== deviceId) {
           return NextResponse.json({
@@ -41,6 +43,7 @@ export async function POST(req: NextRequest) {
           await prisma.user.update({ where: { id: user.id }, data: { deviceId } });
         }
       }
+      */
     }
 
     // Verifikasi password (bcrypt)

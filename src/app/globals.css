@@ -253,6 +253,8 @@ select.input-field option {
   min-height: 100vh;
   padding: 24px;
   background: var(--bg-primary);
+  width: calc(100% - 260px);
+  overflow-x: hidden;
 }
 
 /* ── Animations ────────────────────────────────── */
@@ -367,7 +369,7 @@ select.input-field option {
 @media (max-width: 768px) {
   .sidebar { transform: translateX(-100%); }
   .sidebar.open { transform: translateX(0); }
-  .main-content { margin-left: 0; padding: 16px; }
+  .main-content { margin-left: 0; padding: 16px; width: 100%; }
 }
 
 /* ── Loading Skeleton ──────────────────────────── */
