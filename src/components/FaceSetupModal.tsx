@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useStore } from "@/lib/store";
 import { Camera, CheckCircle, Loader2, AlertTriangle, UserCheck } from "lucide-react";
 import { loadFaceModels, detectFaceWithExpression, drawFaceDetection } from "@/lib/faceRecognition";
+import type { Student } from "@/lib/types";
 
 export default function FaceSetupModal() {
   const { currentUser, updateStudent } = useStore();
@@ -17,8 +18,8 @@ export default function FaceSetupModal() {
   const [smileDetected, setSmileDetected] = useState(false);
   
   // Hanya jalankan untuk siswa yang belum punya faceDescriptor
-  const needsSetup = currentUser?.role === "siswa" && 
-    (!currentUser.faceDescriptor || currentUser.faceDescriptor.length === 0);
+  const student = currentUser?.role === "siswa" ? (currentUser as Student) : null;
+  const needsSetup = !!student && (!student.faceDescriptor || student.faceDescriptor.length === 0);
 
   useEffect(() => {
     if (needsSetup) {
