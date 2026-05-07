@@ -11,11 +11,11 @@ import { ADDITIONAL_TEACHERS, DUMMY_SCHEDULES as _DUMMY_SCHEDULES } from "./gene
 // Konfigurasi dummy sekolah untuk pengujian (termasuk batas geofence dan jam aturan absensi)
 export const SCHOOL_CONFIG: School = {
   id: "school-001",
-  name: "SMK Negeri 1 Contoh Kota",
-  address: "Jl. Pendidikan No. 1, Kota Contoh, Jawa Timur",
-  latitude: -7.2575,
-  longitude: 112.7521,
-  radius: 9999999, // 9999 meters for testing
+  name: "SMK ARYA SINGASARI LARANGAN",
+  address: "Jl. Pendidikan No. 1, Kota Contoh, Jawa Timur", // Bisa disesuaikan nanti
+  latitude: -6.9597244,
+  longitude: 108.9829353,
+  radius: 100,
   checkInStart: "06:30",
   checkInEnd: "08:00",
   checkOutStart: "14:00",

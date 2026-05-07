@@ -23,10 +23,10 @@ async function main() {
     update: {},
     create: {
       id:           "school-1",
-      name:         "SMK Negeri 1 Contoh",
-      address:      "Jl. Pendidikan No. 1, Kota Contoh",
-      latitude:     -7.983908,
-      longitude:    112.621391,
+      name:         "SMK ARYA SINGASARI LARANGAN",
+      address:      "Jl. Pendidikan No. 1, Kota Contoh", // Bisa disesuaikan nanti
+      latitude:     -6.9597244,
+      longitude:    108.9829353,
       radius:       100,
       checkInStart: "06:30",
       checkInEnd:   "07:30",
