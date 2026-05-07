@@ -115,12 +115,22 @@ export default function AbsensiPage() {
     let smileAccum = 0;
     let surprisedAccum = 0;
 
-    const loop = async () => {
+    let lastProcessingTime = 0;
+    const THROTTLE_MS = 300; // Optimasi HP Kentang: Batasi menjadi ~3 FPS
+
+    const loop = async (timestamp: number) => {
       if (!videoRef.current || !canvasRef.current) return;
       if (videoRef.current.readyState < 2 || videoRef.current.videoWidth === 0) {
         rafRef.current = requestAnimationFrame(loop);
         return;
       }
+
+      // Membatasi proses agar tidak membuat CPU/GPU nge-lag di HP spek rendah
+      if (timestamp - lastProcessingTime < THROTTLE_MS) {
+        rafRef.current = requestAnimationFrame(loop);
+        return;
+      }
+      lastProcessingTime = timestamp;
 
       try {
         const hasFace = await drawFaceDetection(videoRef.current, canvasRef.current);
