@@ -2,8 +2,8 @@
 import { useStore } from "@/lib/store";
 import { useState, useRef, useEffect } from "react";
 import { Bell, CheckCheck, Info, AlertTriangle, CheckCircle, XCircle } from "lucide-react";
-import Link from "next/link";
 import { sendPushNotification } from "@/lib/notifications";
+import { InAppNotification } from "@/lib/types";
 
 const TYPE_ICON: Record<string, React.ElementType> = {
   info: Info, warning: AlertTriangle, success: CheckCircle, danger: XCircle,
@@ -16,7 +16,7 @@ const TYPE_COLOR: Record<string, string> = {
 export default function NotificationBell() {
   const { currentUser } = useStore();
   const [open, setOpen] = useState(false);
-  const [notifs, setNotifs] = useState<any[]>([]);
+  const [notifs, setNotifs] = useState<InAppNotification[]>([]);
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -42,13 +42,12 @@ export default function NotificationBell() {
   };
 
   useEffect(() => {
+     
     fetchNotifications();
     // Auto-refresh notif setiap 30 detik
     const interval = setInterval(fetchNotifications, 30000);
     return () => clearInterval(interval);
   }, [currentUser?.id]);
-
-  if (!currentUser) return null;
 
   const unreadCount = notifs.filter(n => !n.isRead).length;
   const prevUnread = useRef(unreadCount);
@@ -63,6 +62,8 @@ export default function NotificationBell() {
     }
     prevUnread.current = unreadCount;
   }, [unreadCount, notifs]);
+
+  if (!currentUser) return null;
 
   const markAsRead = async (id: string) => {
     setNotifs(prev => prev.map(n => n.id === id ? { ...n, isRead: true } : n));

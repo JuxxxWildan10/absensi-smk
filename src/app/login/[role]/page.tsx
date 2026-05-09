@@ -51,7 +51,7 @@ export default function RoleLoginPage({ params }: { params: Promise<{ role: stri
     }
 
     try {
-      // Panggil API login yang terhubung ke Database (Prisma + SQLite)
+      // TAHAP 1: Coba login via API (terhubung ke Database Prisma/PostgreSQL)
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -59,31 +59,81 @@ export default function RoleLoginPage({ params }: { params: Promise<{ role: stri
       });
 
       const result = await res.json();
-      setLoading(false);
 
-      if (!result.success) {
-        setError(result.message);
+      if (result.success) {
+        // Login DB berhasil — validasi role sesuai portal
+        if (result.user?.role !== role) {
+          setLoading(false);
+          setError(`Akses ditolak! Akun ini bukan terdaftar sebagai ${ROLE_LABELS[role]}.`);
+          return;
+        }
+        // Simpan ke Zustand store (session aktif di browser)
+        useStore.setState({
+          currentUser: {
+            ...result.user,
+            faceDescriptor: result.user.faceDescriptor
+              ? JSON.parse(result.user.faceDescriptor)
+              : undefined,
+            // Parse studentIds dari JSON string (untuk wali dari DB)
+            studentIds: result.user.studentIds
+              ? JSON.parse(result.user.studentIds)
+              : undefined,
+          },
+          isAuthenticated: true,
+        });
+        router.push(ROLE_REDIRECTS[role]);
         return;
       }
 
-      // Validasi role sesuai portal yang diakses
-      if (result.user?.role !== role) {
+      // TAHAP 2: Fallback ke Zustand store (dummy data — untuk demo & wali murid)
+      // Wali murid, guru, dan siswa dummy belum tentu tersimpan di DB Production
+      if (
+        result.message === "Username tidak ditemukan" ||
+        result.message === "Terjadi kesalahan server"
+      ) {
+        const storeResult = login(username, password, kelas || undefined, deviceId);
+        setLoading(false);
+
+        if (!storeResult.success) {
+          setError(storeResult.message);
+          return;
+        }
+
+        // Validasi role sesuai portal yang diakses
+        const currentUser = useStore.getState().currentUser;
+        if (currentUser?.role !== role) {
+          useStore.setState({ currentUser: null, isAuthenticated: false });
+          setError(`Akses ditolak! Akun ini bukan terdaftar sebagai ${ROLE_LABELS[role]}.`);
+          return;
+        }
+
+        router.push(ROLE_REDIRECTS[role]);
+        return;
+      }
+
+      // Error lain dari API (password salah, akun nonaktif, dll)
+      setLoading(false);
+      setError(result.message);
+
+    } catch (err) {
+      // Jika API tidak dapat dijangkau — fallback penuh ke store
+      const storeResult = login(username, password, kelas || undefined, deviceId);
+      setLoading(false);
+
+      if (!storeResult.success) {
+        setError("Server tidak dapat dijangkau. " + storeResult.message);
+        console.error(err);
+        return;
+      }
+
+      const currentUser = useStore.getState().currentUser;
+      if (currentUser?.role !== role) {
+        useStore.setState({ currentUser: null, isAuthenticated: false });
         setError(`Akses ditolak! Akun ini bukan terdaftar sebagai ${ROLE_LABELS[role]}.`);
         return;
       }
 
-      // Simpan ke Zustand store (session aktif di browser)
-      useStore.setState({
-        currentUser: { ...result.user, faceDescriptor: result.user.faceDescriptor ? JSON.parse(result.user.faceDescriptor) : undefined },
-        isAuthenticated: true,
-      });
-
       router.push(ROLE_REDIRECTS[role]);
-
-    } catch (err) {
-      setLoading(false);
-      setError("Gagal terhubung ke server. Periksa koneksi Anda.");
-      console.error(err);
     }
   };
 

@@ -28,6 +28,8 @@ export default function AdminSchedulesPage() {
   });
 
   // Reset pagination when filter changes
+   
+   
   useEffect(() => { setCurrentPage(1); }, [filterKelas, filterDay, search]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));

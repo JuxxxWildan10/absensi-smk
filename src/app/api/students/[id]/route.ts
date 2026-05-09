@@ -44,7 +44,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
       data: { userId: "system", userName: "System", role: "admin", action: "EDIT_SISWA", target: updated.name },
     });
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+     
     const { password: _, ...safe } = updated;
     return NextResponse.json({ success: true, data: safe });
 

@@ -81,7 +81,7 @@ export async function POST(req: NextRequest) {
       data: { userId: "system", userName: "System", role: "admin", action: "TAMBAH_SISWA", target: name },
     });
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+     
     const { password: _, ...safe } = student;
     return NextResponse.json({ success: true, data: safe }, { status: 201 });
 

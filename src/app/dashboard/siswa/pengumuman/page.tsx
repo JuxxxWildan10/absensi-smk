@@ -15,6 +15,9 @@ const PRIORITY_CONFIG: Record<AnnouncementPriority, { label: string; color: stri
 export default function SiswaPengumumanPage() {
   const { currentUser, getAnnouncementsForUser } = useStore();
   const [mounted, setMounted] = useState(false);
+   
+   
+   
   useEffect(() => setMounted(true), []);
   if (!currentUser || !mounted) return null;
 

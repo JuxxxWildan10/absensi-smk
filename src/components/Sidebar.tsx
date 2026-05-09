@@ -1,10 +1,11 @@
 "use client";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
-  Shield, LayoutDashboard, Users, ClipboardList, Bell,
-  BarChart3, FileText, Settings, LogOut, Menu, X,
-  MapPin, Camera, UserCheck, BookOpen, Calendar, ShieldCheck, Clock,
+LayoutDashboard, Users, ClipboardList, Bell,
+FileText, Settings, LogOut, Menu, X,
+Camera, UserCheck, BookOpen, Calendar, ShieldCheck, Clock,
   Megaphone, FileCheck, User, BarChart2, Baby, GraduationCap,
 } from "lucide-react";
 import { useStore } from "@/lib/store";
@@ -96,7 +97,7 @@ export default function Sidebar() {
 
   // Komponen internal untuk konten sidebar (Logo, Profil, Menu, Logout)
   // Dipisahkan agar dapat digunakan ulang pada sidebar versi desktop dan mobile
-  const SidebarContent = () => (
+  const sidebarContent = (
     <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
       {/* Logo */}
       <div style={{ padding: "20px 20px 16px", borderBottom: "1px solid var(--border-glass)" }}>
@@ -178,7 +179,7 @@ export default function Sidebar() {
     <>
       {/* Desktop sidebar - Tampil secara default di layar besar */}
       <aside className="sidebar" style={{ display: "flex", flexDirection: "column" }}>
-        <SidebarContent />
+        {sidebarContent}
       </aside>
 
       {/* Mobile toggle - Tombol hamburger untuk membuka sidebar di layar kecil */}
@@ -206,7 +207,7 @@ export default function Sidebar() {
         transform: mobileOpen ? "translateX(0)" : "translateX(-100%)",
         transition: "transform 0.3s ease", display: "flex", flexDirection: "column"
       }}>
-        <SidebarContent />
+        {sidebarContent}
       </aside>
 
       <style>{`@media(max-width:768px){.mobile-menu-btn{display:flex!important}}`}</style>

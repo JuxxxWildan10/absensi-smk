@@ -10,17 +10,21 @@ import { AttendanceRecord } from "@/lib/types";
 export default function WaliDashboard() {
   const { currentUser, records, notifications, parents, students } = useStore();
   const [mounted, setMounted] = useState(false);
+   
+   
+   
   useEffect(() => setMounted(true), []);
 
   if (!currentUser || !mounted) return null;
 
   const getStudentIds = () => {
     try {
-      if (typeof currentUser.studentIds === "string") {
-        return JSON.parse(currentUser.studentIds) as string[];
+      const wali = currentUser as import("@/lib/types").Parent;
+      if (typeof wali.studentIds === "string") {
+        return JSON.parse(wali.studentIds) as string[];
       }
-      if (Array.isArray(currentUser.studentIds)) {
-        return currentUser.studentIds;
+      if (Array.isArray(wali.studentIds)) {
+        return wali.studentIds;
       }
     } catch {
       return [];

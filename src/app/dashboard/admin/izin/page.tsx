@@ -22,6 +22,8 @@ export default function AdminIzinPage() {
   }).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
   // Reset pagination when filters change
+   
+   
   useEffect(() => { setCurrentPage(1); }, [filterKelas, filterStatus, search]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));

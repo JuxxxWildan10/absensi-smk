@@ -12,6 +12,9 @@ import { id as idLocale } from "date-fns/locale";
 export default function GuruDashboard() {
   const { currentUser, students, records, getDashboardStats } = useStore();
   const [mounted, setMounted] = useState(false);
+   
+   
+   
   useEffect(() => setMounted(true), []);
 
   if (!currentUser || !mounted) return null;

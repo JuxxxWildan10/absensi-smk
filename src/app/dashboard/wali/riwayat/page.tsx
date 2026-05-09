@@ -11,16 +11,18 @@ import { useState, useEffect } from "react";
 export default function WaliRiwayatPage() {
   const { currentUser, records, students } = useStore();
   const [statusFilter, setStatusFilter] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
 
   if (!currentUser) return null;
 
   const getStudentIds = () => {
     try {
-      if (typeof currentUser.studentIds === "string") {
-        return JSON.parse(currentUser.studentIds) as string[];
+      const wali = currentUser as import("@/lib/types").Parent;
+      if (typeof wali.studentIds === "string") {
+        return JSON.parse(wali.studentIds) as string[];
       }
-      if (Array.isArray(currentUser.studentIds)) {
-        return currentUser.studentIds;
+      if (Array.isArray(wali.studentIds)) {
+        return wali.studentIds;
       }
     } catch {
       return [];
@@ -34,10 +36,7 @@ export default function WaliRiwayatPage() {
   const myRecords = records.filter((r) => studentIds.includes(r.studentId) &&
     (statusFilter === "all" || r.status === statusFilter));
 
-  const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 20;
-
-  useEffect(() => { setCurrentPage(1); }, [statusFilter]);
 
   const totalPages = Math.max(1, Math.ceil(myRecords.length / ITEMS_PER_PAGE));
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -61,7 +60,7 @@ export default function WaliRiwayatPage() {
       </div>
 
       <div style={{ marginBottom: 16 }}>
-        <select className="input-field" style={{ width: "auto" }} value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+        <select className="input-field" style={{ width: "auto" }} value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setCurrentPage(1); }}>
           <option value="all">Semua Status</option>
           <option value="hadir">Hadir</option>
           <option value="terlambat">Terlambat</option>

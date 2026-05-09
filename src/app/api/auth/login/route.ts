@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
     });
 
     // Kembalikan data user tanpa password
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+     
     const { password: _, ...safeUser } = user;
     return NextResponse.json({ success: true, message: "Login berhasil", user: safeUser });
 

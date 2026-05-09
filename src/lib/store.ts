@@ -155,7 +155,9 @@ export const useStore = create<AppState>()(
       currentUser: null,
       isAuthenticated: false,
 
-      login: (username, password, kelas, deviceId) => {
+       
+       
+      login: (username, password, kelas, _deviceId) => {
         // Fungsi utama untuk menangani proses login
         // Gabungkan user statis (admin) dengan user dinamis di state (siswa, guru, wali)
         const adminUsers = ALL_USERS.filter(u => u.role === "admin");
@@ -163,7 +165,7 @@ export const useStore = create<AppState>()(
         const currentUsers = [...adminUsers, ...dynamicUsers];
 
         const user = currentUsers.find(
-          (u) => (u.username || (u as any).email || "").toLowerCase() === username.toLowerCase()
+          (u) => (u.username || u.email || "").toLowerCase() === username.toLowerCase()
         );
 
         if (!user) return { success: false, message: "Username tidak ditemukan" };

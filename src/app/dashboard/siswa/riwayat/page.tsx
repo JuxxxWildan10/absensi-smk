@@ -10,6 +10,7 @@ import { id as idLocale } from "date-fns/locale";
 export default function SiswaRiwayatPage() {
   const { currentUser, getStudentAttendance } = useStore();
   const [statusFilter, setStatusFilter] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
 
   if (!currentUser) return null;
   const records = getStudentAttendance(currentUser.id);
@@ -18,11 +19,7 @@ export default function SiswaRiwayatPage() {
     statusFilter === "all" || r.status === statusFilter
   );
 
-  const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 20;
-
-  // Reset pagination when filter changes
-  useEffect(() => { setCurrentPage(1); }, [statusFilter]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;

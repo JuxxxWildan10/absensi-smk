@@ -28,6 +28,9 @@ const STATS = [
 // Menampilkan penjelasan produk, fitur unggulan (Geofencing & AI), serta tautan (shortcut) login akun demo
 export default function LandingPage() {
   const [mounted, setMounted] = useState(false);
+   
+   
+   
   useEffect(() => setMounted(true), []);
 
   return (

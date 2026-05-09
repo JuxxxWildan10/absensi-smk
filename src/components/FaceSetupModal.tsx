@@ -21,14 +21,6 @@ export default function FaceSetupModal() {
   const student = currentUser?.role === "siswa" ? (currentUser as Student) : null;
   const needsSetup = !!student && (!student.faceDescriptor || student.faceDescriptor.length === 0);
 
-  useEffect(() => {
-    if (needsSetup) {
-      startCamera();
-      loadFaceModels().then(() => setLoadingModels(false));
-    }
-    return () => stopCamera();
-  }, [needsSetup]);
-
   const startCamera = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
@@ -50,6 +42,16 @@ export default function FaceSetupModal() {
     }
   };
 
+   
+   
+  useEffect(() => {
+    if (needsSetup) {
+      startCamera();
+      loadFaceModels().then(() => setLoadingModels(false));
+    }
+    return () => stopCamera();
+  }, [needsSetup]);
+
   const startRegistration = async () => {
     if (!videoRef.current) return;
     setScanStep("scanning");
@@ -61,6 +63,7 @@ export default function FaceSetupModal() {
     let descriptorToSave: Float32Array | null = null;
     
     // Loop deteksi selama maksimal 15 detik
+     
     const startTime = Date.now();
     const interval = setInterval(async () => {
       if (!videoRef.current || !canvasRef.current) return;
