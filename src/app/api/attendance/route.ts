@@ -85,15 +85,37 @@ export async function POST(req: NextRequest) {
       data: { userId: studentId, userName: studentName, role: "siswa", action: "ABSENSI_MASUK", target: date },
     });
 
-    if (status === "terlambat") {
-      const student = await prisma.user.findUnique({ where: { id: studentId } });
-      if (student?.parentId) {
-        const parent = await prisma.user.findUnique({ where: { id: student.parentId } });
-        if (parent?.pushSubscription) {
-          const checkInTime = checkIn?.time || "waktu yang tidak diketahui";
-          const msg = `Anak Anda, ${studentName} (${kelas}), terlambat masuk hari ini pukul ${checkInTime}.`;
+    // Kirim notifikasi (In-App & Push) ke Wali Murid
+    const student = await prisma.user.findUnique({ where: { id: studentId } });
+    if (student?.parentId) {
+      const parent = await prisma.user.findUnique({ where: { id: student.parentId } });
+      const checkInTime = checkIn?.time || "waktu yang tidak diketahui";
+      const isLate = status === "terlambat";
+      
+      const title = isLate ? "⚠️ Keterlambatan" : "✅ Info Kehadiran";
+      const msg = isLate
+        ? `Anak Anda, ${studentName} (${kelas}), terlambat masuk pada pukul ${checkInTime}.`
+        : `Anak Anda, ${studentName} (${kelas}), telah tiba di sekolah dan melakukan absen masuk pada pukul ${checkInTime}.`;
+      const type = isLate ? "warning" : "success";
+
+      // 1. Simpan ke In-App Notification
+      await prisma.inAppNotification.create({
+        data: {
+          id: uuidv4(),
+          userId: student.parentId,
+          title,
+          message: msg,
+          type,
+        }
+      });
+
+      // 2. Kirim Web Push Notification jika parent sudah subscribe
+      if (parent?.pushSubscription) {
+        try {
           const { sendWebPushNotification } = await import("@/lib/webPush");
-          await sendWebPushNotification(parent.pushSubscription, "⚠️ Peringatan Keterlambatan", msg);
+          await sendWebPushNotification(parent.pushSubscription, title, msg);
+        } catch (e) {
+          console.error("Gagal mengirim push notification:", e);
         }
       }
     }
@@ -131,6 +153,37 @@ export async function PUT(req: NextRequest) {
     await prisma.auditLog.create({
       data: { userId: studentId, userName: existing.studentName, role: "siswa", action: "ABSENSI_KELUAR", target: date },
     });
+
+    // Kirim notifikasi (In-App & Push) ke Wali Murid saat pulang
+    const student = await prisma.user.findUnique({ where: { id: studentId } });
+    if (student?.parentId) {
+      const parent = await prisma.user.findUnique({ where: { id: student.parentId } });
+      const checkOutTime = checkOut?.time || "waktu yang tidak diketahui";
+      
+      const title = "✅ Info Kepulangan";
+      const msg = `Anak Anda, ${existing.studentName} (${existing.kelas}), telah melakukan absen pulang pada pukul ${checkOutTime}.`;
+
+      // Simpan In-App Notif
+      await prisma.inAppNotification.create({
+        data: {
+          id: uuidv4(),
+          userId: student.parentId,
+          title,
+          message: msg,
+          type: "info",
+        }
+      });
+
+      // Kirim Push Notification
+      if (parent?.pushSubscription) {
+        try {
+          const { sendWebPushNotification } = await import("@/lib/webPush");
+          await sendWebPushNotification(parent.pushSubscription, title, msg);
+        } catch (e) {
+          console.error("Gagal mengirim push notification:", e);
+        }
+      }
+    }
 
     return NextResponse.json({
       success: true,
