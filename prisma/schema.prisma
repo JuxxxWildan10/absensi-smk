@@ -10,33 +10,34 @@ datasource db {
 }
 
 model User {
-  id             String              @id @default(uuid())
-  name           String
-  username       String              @unique
-  password       String
-  role           String
-  avatar         String?
-  phone          String?
-  email          String?
-  isActive       Boolean             @default(true)
-  createdAt      DateTime            @default(now())
-  nisn           String?             @unique
-  kelas          String?
-  jurusan        String?
-  faceDescriptor String?
-  parentId       String?
-  isAlumni       Boolean             @default(false)
-  graduationYear Int?
-  deviceId       String?
-  nip            String?             @unique
-  mataPelajaran  String?
-  kelasWali      String?
-  studentIds     String?
-  waNumber       String?
-  attendances    AttendanceRecord[]
-  auditLogs      AuditLog[]
-  notifications  InAppNotification[]
-  permits        PermitRequest[]
+  id               String              @id @default(uuid())
+  name             String
+  username         String              @unique
+  password         String
+  role             String
+  avatar           String?
+  phone            String?
+  email            String?
+  isActive         Boolean             @default(true)
+  createdAt        DateTime            @default(now())
+  nisn             String?             @unique
+  kelas            String?
+  jurusan          String?
+  faceDescriptor   String?
+  parentId         String?
+  isAlumni         Boolean             @default(false)
+  graduationYear   Int?
+  deviceId         String?
+  nip              String?             @unique
+  mataPelajaran    String?
+  kelasWali        String?
+  studentIds       String?
+  waNumber         String?
+  pushSubscription String?
+  attendances      AttendanceRecord[]
+  auditLogs        AuditLog[]
+  notifications    InAppNotification[]
+  permits          PermitRequest[]
 }
 
 model SchoolConfig {

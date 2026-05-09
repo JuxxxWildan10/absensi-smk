@@ -66,6 +66,13 @@ export async function POST() {
               type: "danger",
             }
           });
+
+          // Fetch parent to check if they have a pushSubscription
+          const parent = await prisma.user.findUnique({ where: { id: student.parentId } });
+          if (parent?.pushSubscription) {
+            const { sendWebPushNotification } = await import("@/lib/webPush");
+            await sendWebPushNotification(parent.pushSubscription, "⚠️ Peringatan Ketidakhadiran (Alpa)", msg);
+          }
           
           notifyCount++;
         }

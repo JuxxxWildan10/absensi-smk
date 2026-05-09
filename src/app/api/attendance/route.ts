@@ -85,6 +85,19 @@ export async function POST(req: NextRequest) {
       data: { userId: studentId, userName: studentName, role: "siswa", action: "ABSENSI_MASUK", target: date },
     });
 
+    if (status === "terlambat") {
+      const student = await prisma.user.findUnique({ where: { id: studentId } });
+      if (student?.parentId) {
+        const parent = await prisma.user.findUnique({ where: { id: student.parentId } });
+        if (parent?.pushSubscription) {
+          const checkInTime = checkIn?.time || "waktu yang tidak diketahui";
+          const msg = `Anak Anda, ${studentName} (${kelas}), terlambat masuk hari ini pukul ${checkInTime}.`;
+          const { sendWebPushNotification } = await import("@/lib/webPush");
+          await sendWebPushNotification(parent.pushSubscription, "⚠️ Peringatan Keterlambatan", msg);
+        }
+      }
+    }
+
     return NextResponse.json({
       success: true,
       data: { ...record, checkIn: record.checkIn ? JSON.parse(record.checkIn) : undefined },

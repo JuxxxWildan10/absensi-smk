@@ -20,6 +20,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       // 1. Sinkronisasi Data dari Database (Tarik data terbaru)
       useStore.getState().hydrateFromDB();
 
+      // Subscribe to Push Notifications
+      import("@/lib/pushClient").then((mod) => {
+        const userId = useStore.getState().currentUser?.id;
+        if (userId) mod.subscribeToPush(userId);
+      });
+
       // 2. Jalankan pengecekan absen otomatis ke Database (Cron) setiap kali dashboard dimuat
       const runCron = async () => {
         try {
