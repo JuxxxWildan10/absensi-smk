@@ -24,14 +24,26 @@ const STATS = [
 
 
 
+import { useRouter } from "next/navigation";
+import { useStore } from "@/lib/store";
+
 // Komponen Halaman Utama (Landing Page) PWA
 // Menampilkan penjelasan produk, fitur unggulan (Geofencing & AI), serta tautan (shortcut) login akun demo
 export default function LandingPage() {
   const [mounted, setMounted] = useState(false);
+  const router = useRouter();
+  const { isAuthenticated, currentUser } = useStore();
    
-   
-   
-  useEffect(() => setMounted(true), []);
+  useEffect(() => {
+    setMounted(true);
+    // Jika user sudah login, langsung redirect ke dashboard sesuai rolenya
+    if (isAuthenticated && currentUser?.role) {
+      router.replace(`/dashboard/${currentUser.role}`);
+    }
+  }, [isAuthenticated, currentUser, router]);
+
+  // Cegah render landing page berkedip jika sedang proses redirect
+  if (isAuthenticated) return null;
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg-primary)" }}>
