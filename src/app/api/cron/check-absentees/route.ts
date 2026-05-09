@@ -8,6 +8,14 @@ import { v4 as uuidv4 } from "uuid";
 import { format } from "date-fns";
 
 export async function POST() {
+  return handleCron();
+}
+
+export async function GET() {
+  return handleCron();
+}
+
+async function handleCron() {
   try {
     const config = await prisma.schoolConfig.findFirst();
     if (!config) return NextResponse.json({ success: false, message: "Konfigurasi tidak ditemukan" });
