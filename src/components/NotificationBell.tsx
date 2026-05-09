@@ -42,11 +42,18 @@ export default function NotificationBell() {
   };
 
   useEffect(() => {
-     
     fetchNotifications();
-    // Auto-refresh notif setiap 30 detik
-    const interval = setInterval(fetchNotifications, 30000);
-    return () => clearInterval(interval);
+    // Auto-refresh notif setiap 10 detik (lebih real-time)
+    const interval = setInterval(fetchNotifications, 10000);
+
+    // Fetch ulang saat user kembali ke tab
+    const onVisible = () => { if (document.visibilityState === "visible") fetchNotifications(); };
+    document.addEventListener("visibilitychange", onVisible);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
   }, [currentUser?.id]);
 
   const unreadCount = notifs.filter(n => !n.isRead).length;
@@ -87,7 +94,7 @@ export default function NotificationBell() {
 
   return (
     <div ref={ref} style={{ position: "relative" }}>
-      <button onClick={() => setOpen(!open)} id="btn-notification-bell"
+      <button onClick={() => { setOpen(!open); if (!open) fetchNotifications(); }} id="btn-notification-bell"
         style={{ position: "relative", background: open ? "rgba(99,102,241,0.15)" : "var(--bg-glass)",
           border: "1px solid var(--border-glass)", borderRadius: 10,
           width: 40, height: 40, display: "flex", alignItems: "center", justifyContent: "center",
