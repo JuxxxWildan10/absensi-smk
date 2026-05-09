@@ -236,7 +236,7 @@ export const useStore = create<AppState>()(
       updateStudent: async (id, updates) => {
         // 1. Update ke Database
         try {
-          await fetch(`/api/students?id=${id}`, {
+          await fetch(`/api/students/${id}`, {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(updates),
@@ -257,7 +257,7 @@ export const useStore = create<AppState>()(
       deleteStudent: async (id) => {
         // 1. Hapus dari Database
         try {
-          await fetch(`/api/students?id=${id}`, { method: "DELETE" });
+          await fetch(`/api/students/${id}`, { method: "DELETE" });
         } catch (e) { console.error("Gagal hapus DB", e); }
 
         // 2. Update UI
@@ -302,7 +302,7 @@ export const useStore = create<AppState>()(
       },
       updateTeacher: async (id, updates) => {
         try {
-          await fetch(`/api/students?id=${id}`, {
+          await fetch(`/api/students/${id}`, {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(updates),
@@ -319,7 +319,7 @@ export const useStore = create<AppState>()(
       },
       deleteTeacher: async (id) => {
         try {
-          await fetch(`/api/students?id=${id}`, { method: "DELETE" });
+          await fetch(`/api/students/${id}`, { method: "DELETE" });
         } catch (e) { console.error("Gagal hapus guru DB", e); }
 
         set((s) => ({ teachers: s.teachers.filter((t) => t.id !== id) }));

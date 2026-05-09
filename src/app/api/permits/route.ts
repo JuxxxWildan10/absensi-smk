@@ -81,19 +81,28 @@ export async function PATCH(req: NextRequest) {
 
     // Buat izin ini menjadi rekam absensi jika approved
     if (action === "approve") {
-      await prisma.attendanceRecord.upsert({
-        where: { id: `${updated.studentId}_${updated.startDate}` },
-        update: { status: updated.type },
-        create: {
-          id: `${updated.studentId}_${updated.startDate}`,
-          studentId: updated.studentId,
-          studentName: updated.studentName,
-          kelas: updated.kelas,
-          date: updated.startDate,
-          status: updated.type, // "izin" atau "sakit"
-          notes: updated.reason,
-        },
+      const attendanceId = `${updated.studentId}_${updated.startDate}`;
+      const existing = await prisma.attendanceRecord.findFirst({
+        where: { studentId: updated.studentId, date: updated.startDate },
       });
+      if (existing) {
+        await prisma.attendanceRecord.update({
+          where: { id: existing.id },
+          data: { status: updated.type },
+        });
+      } else {
+        await prisma.attendanceRecord.create({
+          data: {
+            id: attendanceId,
+            studentId: updated.studentId,
+            studentName: updated.studentName,
+            kelas: updated.kelas,
+            date: updated.startDate,
+            status: updated.type, // "izin" atau "sakit"
+            notes: updated.reason,
+          },
+        });
+      }
     }
 
     // Audit log

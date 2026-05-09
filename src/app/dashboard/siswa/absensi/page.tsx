@@ -1,17 +1,16 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Camera, MapPin, CheckCircle, XCircle, Loader2, AlertTriangle, Eye, RefreshCcw } from "lucide-react";
+import { Camera, MapPin, CheckCircle, XCircle, Loader2, Eye, RefreshCcw } from "lucide-react";
 import { useStore } from "@/lib/store";
 import { validateGeofence, formatDistance, GeoResult } from "@/lib/geofence";
 import {
   loadFaceModels, detectFaceWithExpression,
-  compareFaceDescriptors, drawFaceDetection, captureSnapshot
+  compareFaceDescriptors, drawFaceDetection
 } from "@/lib/faceRecognition";
 import {
-  buildAbsentMessage, createNotificationLog,
   sendPushNotification, getAttendanceStatus
 } from "@/lib/notifications";
-import { DUMMY_PARENTS } from "@/lib/data";
+
 import Toast, { ToastType } from "@/components/Toast";
 import { format } from "date-fns";
 
