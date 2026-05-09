@@ -7,15 +7,19 @@ import { prisma } from "@/lib/prisma";
 import { v4 as uuidv4 } from "uuid";
 import { format } from "date-fns";
 
-export async function POST() {
-  return handleCron();
+export async function POST(req: Request) {
+  const url = new URL(req.url);
+  const force = url.searchParams.get("force") === "true";
+  return handleCron(force);
 }
 
-export async function GET() {
-  return handleCron();
+export async function GET(req: Request) {
+  const url = new URL(req.url);
+  const force = url.searchParams.get("force") === "true";
+  return handleCron(force);
 }
 
-async function handleCron() {
+async function handleCron(force: boolean = false) {
   try {
     const config = await prisma.schoolConfig.findFirst();
     if (!config) return NextResponse.json({ success: false, message: "Konfigurasi tidak ditemukan" });
@@ -24,9 +28,9 @@ async function handleCron() {
     const today = format(now, "yyyy-MM-dd");
     const currentTime = format(now, "HH:mm");
 
-    // Jika waktu belum melewati batas check-in, belum saatnya menghitung Alpa
-    if (currentTime <= config.checkInEnd) {
-      return NextResponse.json({ success: true, message: "Belum waktunya cut-off absensi" });
+    // Jika waktu belum melewati batas check-in, belum saatnya menghitung Alpa (Kecuali force = true)
+    if (currentTime <= config.checkInEnd && !force) {
+      return NextResponse.json({ success: true, message: "Belum waktunya cut-off absensi. Tunggu jam " + config.checkInEnd });
     }
 
     // Cari semua siswa aktif

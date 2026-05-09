@@ -65,11 +65,18 @@ export default function AdminNotifPage() {
   };
 
   const sendAllNotifications = async () => {
-    for (const s of absentStudents) {
-      await sendNotification(s.id, "push");
-      await new Promise((r) => setTimeout(r, 300));
+    setToast({ message: "Sedang mengirim notifikasi ke semua siswa yang belum absen...", type: "info" });
+    try {
+      const res = await fetch("/api/cron/check-absentees?force=true", { method: "POST" });
+      const data = await res.json();
+      if (data.success) {
+        setToast({ message: data.message || "Notifikasi berhasil dikirim!", type: "success" });
+      } else {
+        setToast({ message: data.message || "Gagal mengirim notifikasi", type: "error" });
+      }
+    } catch (err) {
+      setToast({ message: "Terjadi kesalahan server", type: "error" });
     }
-    setToast({ message: `${absentStudents.length} notifikasi berhasil dikirim!`, type: "success" });
   };
 
   if (!mounted) return null;
