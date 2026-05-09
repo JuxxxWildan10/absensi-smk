@@ -36,28 +36,28 @@ export default function LandingPage() {
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg-primary)" }}>
       {/* ── NAV ── */}
-      <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-4 md:px-12 backdrop-blur-md border-b border-white/10"
+      <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-3 md:px-12 backdrop-blur-md border-b border-white/10"
         style={{
           background: "rgba(10,14,26,0.8)",
       }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <img 
             src="/logo-smk.jpg" 
             alt="Logo SMK" 
-            style={{ width: 44, height: 44, borderRadius: 10, objectFit: "contain", background: "white", padding: 2 }} 
+            style={{ width: 36, height: 36, borderRadius: 8, objectFit: "contain", background: "white", padding: 2 }} 
           />
           <div>
-            <div style={{ fontSize: 18, fontWeight: 800, letterSpacing: "-0.3px" }}
-              className="gradient-text">ABSENSI SMK ARYA SINGASARI</div>
-            <div style={{ fontSize: 11, color: "var(--text-muted)" }}>Smart Attendance System</div>
+            <div style={{ fontSize: "clamp(14px, 3vw, 18px)", fontWeight: 800, letterSpacing: "-0.3px" }}
+              className="gradient-text">SMK ARYA SINGASARI</div>
+            <div className="hidden sm:block" style={{ fontSize: 11, color: "var(--text-muted)" }}>Smart Attendance System</div>
           </div>
         </div>
-        <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-          <Link href="/login" className="btn-secondary" style={{ padding: "10px 20px" }}>
+        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          <Link href="/login" className="btn-secondary hidden sm:flex" style={{ padding: "8px 16px", fontSize: 14 }}>
             Masuk
           </Link>
-          <Link href="/login" className="btn-primary" style={{ padding: "10px 20px" }}>
-            Coba Gratis <ArrowRight size={16} />
+          <Link href="/login" className="btn-primary" style={{ padding: "8px 16px", fontSize: 14 }}>
+            Coba Gratis <ArrowRight size={14} className="ml-1" />
           </Link>
         </div>
       </nav>
@@ -90,8 +90,8 @@ export default function LandingPage() {
           </div>
 
           <h1 className="animate-fadeInUp stagger-1" style={{
-            fontSize: "clamp(36px, 6vw, 72px)", fontWeight: 900,
-            lineHeight: 1.1, letterSpacing: "-1.5px", marginBottom: 24,
+            fontSize: "clamp(32px, 7vw, 72px)", fontWeight: 900,
+            lineHeight: 1.1, letterSpacing: "-1px", marginBottom: 20,
           }}>
             Absensi Digital{" "}
             <span className="gradient-text">Cerdas & Aman</span>
@@ -99,28 +99,28 @@ export default function LandingPage() {
           </h1>
 
           <p className="animate-fadeInUp stagger-2" style={{
-            fontSize: "clamp(16px, 2vw, 20px)", color: "var(--text-secondary)",
-            lineHeight: 1.7, marginBottom: 40, maxWidth: 600, margin: "0 auto 40px",
+            fontSize: "clamp(14px, 2.5vw, 20px)", color: "var(--text-secondary)",
+            lineHeight: 1.6, marginBottom: 32, maxWidth: 600, margin: "0 auto 32px",
           }}>
             Eliminasi titip absen dengan verifikasi wajah real-time dan geofencing GPS.
             Notifikasi otomatis ke wali murid jika siswa tidak hadir.
           </p>
 
-          <div className="animate-fadeInUp stagger-3" style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap" }}>
-            <Link href="/login" className="btn-primary" style={{ fontSize: 16, padding: "14px 32px" }}>
-              Mulai Sekarang <ArrowRight size={18} />
+          <div className="animate-fadeInUp stagger-3" style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
+            <Link href="/login" className="btn-primary" style={{ fontSize: "clamp(14px, 2.5vw, 16px)", padding: "12px 28px" }}>
+              Mulai Sekarang <ArrowRight size={18} className="ml-2" />
             </Link>
-            <Link href="#fitur" className="btn-secondary" style={{ fontSize: 16, padding: "14px 32px" }}>
+            <Link href="#fitur" className="btn-secondary" style={{ fontSize: "clamp(14px, 2.5vw, 16px)", padding: "12px 28px" }}>
               Lihat Fitur
             </Link>
           </div>
 
           {/* Stats row */}
-          <div className="animate-fadeInUp stagger-4 grid grid-cols-2 md:grid-cols-4 gap-4 mt-16 max-w-3xl mx-auto">
+          <div className="animate-fadeInUp stagger-4 grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mt-12 md:mt-16 max-w-3xl mx-auto">
             {STATS.map((s) => (
-              <div key={s.label} className="glass-card" style={{ padding: "16px 12px", textAlign: "center" }}>
-                <div style={{ fontSize: 22, fontWeight: 800 }} className="gradient-text">{s.value}</div>
-                <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 4 }}>{s.label}</div>
+              <div key={s.label} className="glass-card" style={{ padding: "14px 8px", textAlign: "center" }}>
+                <div style={{ fontSize: "clamp(18px, 4vw, 22px)", fontWeight: 800 }} className="gradient-text">{s.value}</div>
+                <div style={{ fontSize: "clamp(10px, 2.5vw, 11px)", color: "var(--text-muted)", marginTop: 4 }}>{s.label}</div>
               </div>
             ))}
           </div>
@@ -134,12 +134,12 @@ export default function LandingPage() {
           <div style={{ fontSize: 13, color: "var(--accent-primary)", fontWeight: 600, marginBottom: 12, letterSpacing: 1 }}>
             FITUR UNGGULAN
           </div>
-          <h2 style={{ fontSize: 42, fontWeight: 800, letterSpacing: "-0.5px" }}>
+          <h2 style={{ fontSize: "clamp(26px, 5vw, 42px)", fontWeight: 800, letterSpacing: "-0.5px" }}>
             Teknologi Terdepan untuk<br />
             <span className="gradient-text">Kehadiran yang Akurat</span>
           </h2>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(320px,1fr))", gap: 24 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(280px,1fr))", gap: 24 }}>
           {FEATURES.map((f, i) => (
             <div key={f.title} className="glass-card animate-fadeInUp"
               style={{ padding: 28, animationDelay: `${i * 0.1}s`, opacity: mounted ? 1 : 0 }}>
@@ -173,15 +173,17 @@ export default function LandingPage() {
       </section>
 
       {/* ── FOOTER ── */}
-      <footer className="flex flex-col md:flex-row justify-between items-center gap-4 px-4 py-8 md:px-12 border-t border-white/10 text-center md:text-left">
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <img src="/logo-smk.jpg" alt="Logo" style={{ width: 20, height: 20, borderRadius: 4, objectFit: "contain", background: "white" }} />
-          <span style={{ fontWeight: 700 }} className="gradient-text">ABSENSI SMK ARYA SINGASARI</span>
-          <span style={{ color: "var(--text-muted)", fontSize: 13 }}>© 2025 — Skripsi Sistem Informasi</span>
+      <footer className="flex flex-col md:flex-row justify-between items-center gap-4 px-4 py-8 md:px-12 border-t border-white/10 text-center md:text-left mt-auto">
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, width: "100%" }} className="md:flex-row md:justify-between md:gap-10">
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <img src="/logo-smk.jpg" alt="Logo" style={{ width: 24, height: 24, borderRadius: 6, objectFit: "contain", background: "white" }} />
+            <span style={{ fontWeight: 700, fontSize: "14px" }} className="gradient-text">ABSENSI SMK ARYA SINGASARI</span>
+          </div>
+          <span style={{ color: "var(--text-muted)", fontSize: 12 }}>© 2025 — Skripsi Sistem Informasi</span>
         </div>
-        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-          <Star size={14} color="#f59e0b" fill="#f59e0b" />
-          <span style={{ fontSize: 13, color: "var(--text-secondary)" }}>Dibuat dengan ❤️ untuk Pendidikan Indonesia</span>
+        <div style={{ display: "flex", gap: 6, alignItems: "center", justifyContent: "center", marginTop: 8 }} className="md:mt-0">
+          <Star size={12} color="#f59e0b" fill="#f59e0b" />
+          <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>Dibuat dengan ❤️ untuk Pendidikan Indonesia</span>
         </div>
       </footer>
     </div>
