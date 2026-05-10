@@ -136,11 +136,44 @@ export const useStore = create<AppState>()(
     (set, get) => ({
       hydrateFromDB: async () => {
         try {
+          const currentUser = get().currentUser;
+          
           // Tarik data siswa
           const resSiswa = await fetch("/api/students");
           const dataSiswa = await resSiswa.json();
           if (dataSiswa.success) {
-            set({ students: dataSiswa.data });
+            // Merge dengan state yang ada agar DUMMY_STUDENTS tidak hilang
+            set((state) => {
+              const dbStudents = dataSiswa.data;
+              // Jika ID sama, gunakan DB, jika tidak, pertahankan dummy (untuk testing/demo)
+              const existingStudents = state.students.filter(ds => !dbStudents.some((db: any) => db.id === ds.id));
+              return { students: [...dbStudents, ...existingStudents] };
+            });
+          }
+
+          // Tarik data absensi dari Database agar Desktop & Mobile selalu tersinkronisasi
+          const resAbsen = await fetch("/api/attendance");
+          const dataAbsen = await resAbsen.json();
+          if (dataAbsen.success) {
+            // Sinkronkan records di Zustand dengan data nyata di DB (Merge)
+            set((state) => {
+              const dbRecords = dataAbsen.data;
+              const existingRecords = state.records.filter(r => !dbRecords.some((db: any) => db.id === r.id));
+              return { records: [...dbRecords, ...existingRecords] };
+            });
+          }
+
+          // Tarik notifikasi jika user login
+          if (currentUser) {
+            const resNotif = await fetch(`/api/notifications?userId=${currentUser.id}`);
+            const dataNotif = await resNotif.json();
+            if (dataNotif.success) {
+              set((state) => {
+                const dbNotif = dataNotif.data;
+                const existingNotif = state.inAppNotifications.filter(n => !dbNotif.some((db: any) => db.id === n.id));
+                return { inAppNotifications: [...dbNotif, ...existingNotif] };
+              });
+            }
           }
 
           // Tarik data guru (kita bisa gunakan endpoint students juga karena strukturnya mirip User, tapi dengan parameter role)

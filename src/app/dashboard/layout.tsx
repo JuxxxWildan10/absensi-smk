@@ -37,9 +37,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       
       runCron();
       
+      // Polling: Sinkronkan Data dari Database setiap 15 detik agar Desktop dan HP "langsung terkoneksi"
+      const syncInterval = setInterval(() => {
+        useStore.getState().hydrateFromDB();
+      }, 15 * 1000);
+
       // Pasang interval agar mengecek setiap 5 menit (jika tab dibiarkan terbuka terus)
-      const interval = setInterval(runCron, 5 * 60 * 1000);
-      return () => clearInterval(interval);
+      const cronInterval = setInterval(runCron, 5 * 60 * 1000);
+      
+      return () => {
+        clearInterval(syncInterval);
+        clearInterval(cronInterval);
+      };
     }
   }, [isAuthenticated, router]);
 
