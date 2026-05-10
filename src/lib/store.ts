@@ -151,6 +151,23 @@ export const useStore = create<AppState>()(
             });
           }
 
+          // Tarik data guru & wali dari Database
+          const resUsers = await fetch("/api/users");
+          const dataUsers = await resUsers.json();
+          if (dataUsers.success) {
+            const dbGurus = dataUsers.data.filter((u: any) => u.role === "guru");
+            const dbWalis = dataUsers.data.filter((u: any) => u.role === "wali");
+            
+            set((state) => {
+              const existingTeachers = state.teachers.filter(t => !dbGurus.some((db: any) => db.id === t.id));
+              const existingParents = state.parents.filter(p => !dbWalis.some((db: any) => db.id === p.id));
+              return { 
+                teachers: [...dbGurus, ...existingTeachers],
+                parents: [...dbWalis, ...existingParents]
+              };
+            });
+          }
+
           // Tarik data absensi dari Database agar Desktop & Mobile selalu tersinkronisasi
           const resAbsen = await fetch("/api/attendance");
           const dataAbsen = await resAbsen.json();
@@ -323,7 +340,7 @@ export const useStore = create<AppState>()(
       teachers: DUMMY_TEACHERS,
       addTeacher: async (teacher) => {
         try {
-          await fetch("/api/students", { // Kita gunakan tabel User (role: guru) lewat endpoint yg ada, atau endpoint khusus /api/teachers
+          await fetch("/api/users", { 
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ ...teacher, role: "guru", password: "password123" }),
@@ -335,7 +352,7 @@ export const useStore = create<AppState>()(
       },
       updateTeacher: async (id, updates) => {
         try {
-          await fetch(`/api/students/${id}`, {
+          await fetch(`/api/students/${id}`, { // Bisa diubah ke /api/users/[id] nantinya, untuk prototype ini aman pakai rute siswa krn sama-sama user
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(updates),
@@ -384,15 +401,38 @@ export const useStore = create<AppState>()(
 
       // ── Parents ────────────────────────────────
       parents: DUMMY_PARENTS,
-      addParent: (parent) =>
-        set((s) => ({ parents: [...s.parents, parent] })),
-      updateParent: (id, updates) =>
+      addParent: async (parent) => {
+        try {
+          await fetch("/api/users", { 
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ ...parent, role: "wali", password: "password123" }),
+          });
+        } catch (e) { console.error("Gagal simpan wali DB", e); }
+
+        set((s) => ({ parents: [...s.parents, parent] }));
+      },
+      updateParent: async (id, updates) => {
+        try {
+          await fetch(`/api/students/${id}`, { 
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(updates),
+          });
+        } catch (e) { console.error("Gagal update wali DB", e); }
+
         set((s) => ({
           parents: s.parents.map((p) => p.id === id ? { ...p, ...updates } : p),
           currentUser: s.currentUser?.id === id ? { ...s.currentUser, ...updates } : s.currentUser,
-        })),
-      deleteParent: (id) =>
-        set((s) => ({ parents: s.parents.filter((p) => p.id !== id) })),
+        }));
+      },
+      deleteParent: async (id) => {
+        try {
+          await fetch(`/api/students/${id}`, { method: "DELETE" });
+        } catch (e) { console.error("Gagal hapus wali DB", e); }
+
+        set((s) => ({ parents: s.parents.filter((p) => p.id !== id) }));
+      },
 
       // ── Config ────────────────────────────────
       schoolConfig: SCHOOL_CONFIG,
