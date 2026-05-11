@@ -28,6 +28,8 @@ export const viewport: Viewport = {
   maximumScale: 1,
 };
 
+import SyncProvider from "@/components/SyncProvider";
+
 export default function RootLayout({
   children,
 }: {
@@ -40,7 +42,11 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="mobile-web-app-capable" content="yes" />
       </head>
-      <body suppressHydrationWarning>{children}</body>
+      <body suppressHydrationWarning>
+        <SyncProvider>
+          {children}
+        </SyncProvider>
+      </body>
     </html>
   );
 }

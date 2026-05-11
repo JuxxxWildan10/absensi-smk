@@ -22,7 +22,7 @@ const nextConfig: NextConfig = {
         canvas: false,
       };
     }
-    
+
     // Kadang fallback saja tidak cukup, kita gunakan alias
     config.resolve.alias = {
       ...config.resolve.alias,
