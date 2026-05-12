@@ -295,8 +295,19 @@ export const useStore = create<AppState>()(
         }));
         get().addAuditLog("EDIT_SISWA", id);
       },
-      addStudentsBulk: (newStudents) =>
-        set((s) => ({ students: [...s.students, ...newStudents] })),
+      addStudentsBulk: async (newStudents) => {
+        try {
+          await Promise.all(newStudents.map(student => 
+            fetch("/api/students", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(student),
+            })
+          ));
+        } catch (e) { console.error("Gagal simpan bulk siswa", e); }
+        set((s) => ({ students: [...s.students, ...newStudents] }));
+        get().addAuditLog("TAMBAH_SISWA", `Bulk ${newStudents.length} siswa`);
+      },
       deleteStudent: async (id) => {
         // 1. Hapus dari Database
         try {
@@ -307,25 +318,41 @@ export const useStore = create<AppState>()(
         set((s) => ({ students: s.students.filter((st) => st.id !== id) }));
         get().addAuditLog("HAPUS_SISWA", id);
       },
-      promoteStudents: () => {
+      promoteStudents: async () => {
         const currentYear = new Date().getFullYear();
+        const updatedStudents: Student[] = [];
+
         set((s) => ({
           students: s.students.map((st) => {
             if (st.isAlumni) return st; // Skip already alumni
+            let newSt = { ...st };
 
             if (st.kelas.startsWith("XII ")) {
-              // Promote to alumni
-              return { ...st, isAlumni: true, graduationYear: currentYear };
+              newSt = { ...st, isAlumni: true, graduationYear: currentYear };
             } else if (st.kelas.startsWith("XI ")) {
-              // Promote XI to XII
-              return { ...st, kelas: st.kelas.replace("XI ", "XII ") };
+              newSt = { ...st, kelas: st.kelas.replace("XI ", "XII ") };
             } else if (st.kelas.startsWith("X ")) {
-              // Promote X to XI
-              return { ...st, kelas: st.kelas.replace("X ", "XI ") };
+              newSt = { ...st, kelas: st.kelas.replace("X ", "XI ") };
             }
-            return st;
+            
+            if (newSt.kelas !== st.kelas || newSt.isAlumni !== st.isAlumni) {
+              updatedStudents.push(newSt);
+            }
+            return newSt;
           })
         }));
+
+        // Simpan ke DB secara paralel
+        try {
+          await Promise.all(updatedStudents.map(st =>
+            fetch(`/api/students/${st.id}`, {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(st),
+            })
+          ));
+        } catch (e) { console.error("Gagal promote siswa di DB", e); }
+
         get().addAuditLog("NAIK_KELAS", "Semua Siswa");
       },
 
@@ -657,20 +684,44 @@ export const useStore = create<AppState>()(
 
       // ── In-App Notifications ──────────────────────────────
       inAppNotifications: [],
-      addInAppNotification: (notif) =>
-        set((s) => ({ inAppNotifications: [notif, ...s.inAppNotifications] })),
-      markAsRead: (id) =>
+      addInAppNotification: async (notif) => {
+        try {
+          await fetch("/api/notifications", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(notif),
+          });
+        } catch (e) { console.error("Gagal simpan notif", e); }
+        set((s) => ({ inAppNotifications: [notif, ...s.inAppNotifications] }));
+      },
+      markAsRead: async (id) => {
+        try {
+          await fetch("/api/notifications", {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ notifId: id }),
+          });
+        } catch (e) { console.error("Gagal mark read notif", e); }
         set((s) => ({
           inAppNotifications: s.inAppNotifications.map((n) =>
             n.id === id ? { ...n, isRead: true } : n
           ),
-        })),
-      markAllAsRead: (userId) =>
+        }));
+      },
+      markAllAsRead: async (userId) => {
+        try {
+          await fetch("/api/notifications", {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ userId }),
+          });
+        } catch (e) { console.error("Gagal mark all read", e); }
         set((s) => ({
           inAppNotifications: s.inAppNotifications.map((n) =>
             n.userId === userId ? { ...n, isRead: true } : n
           ),
-        })),
+        }));
+      },
       getUnreadCount: (userId) =>
         get().inAppNotifications.filter((n) => n.userId === userId && !n.isRead).length,
       getNotificationsForUser: (userId) =>
@@ -721,6 +772,15 @@ export const useStore = create<AppState>()(
           });
 
           if (newNotifs.length > 0) {
+            // Push semua notifikasi alpa ke DB agar masuk ke semua HP Wali Murid
+            Promise.all(newNotifs.map(n => 
+              fetch("/api/notifications", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(n),
+              })
+            )).catch(e => console.error("Gagal push notif alpa", e));
+
             set((s) => ({
               inAppNotifications: [...newNotifs, ...s.inAppNotifications],
               lastAbsenceCheckDate: today, // Tandai bahwa hari ini sudah dicek
