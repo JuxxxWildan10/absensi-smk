@@ -2,7 +2,8 @@
 // AbsensiCerdas - Global State Store (Zustand)
 // ============================================================
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { persist, createJSONStorage } from "zustand/middleware";
+import { get, set, del } from "idb-keyval";
 import {
   User, Student, Teacher, Parent, AttendanceRecord, NotificationLog,
   DashboardStats, UserRole, PermitRequest, AuditLog, AuditAction,
@@ -207,7 +208,7 @@ export const useStore = create<AppState>()(
 
        
        
-      login: (username, password, kelas, _deviceId) => {
+      login: (username, password, kelas, deviceId) => {
         // Fungsi utama untuk menangani proses login
         // Gabungkan user statis (admin) dengan user dinamis di state (siswa, guru, wali)
         const adminUsers = ALL_USERS.filter(u => u.role === "admin");
@@ -227,8 +228,7 @@ export const useStore = create<AppState>()(
           if ((user as Student).kelas !== kelas) {
             return { success: false, message: "Kelas yang dipilih tidak sesuai dengan data siswa" };
           }
-          // -- FITUR DEVICE BINDING DINONAKTIFKAN SEMENTARA UNTUK TESTING/DEMO SKRIPSI --
-          /*
+          // Device Binding
           if (deviceId) {
             const student = user as Student;
             if (student.deviceId && student.deviceId !== deviceId) {
@@ -239,7 +239,6 @@ export const useStore = create<AppState>()(
               get().updateStudent(student.id, { deviceId });
             }
           }
-          */
         }
 
         if (user.role === "siswa" && (user as Student).isAlumni)
@@ -690,6 +689,17 @@ export const useStore = create<AppState>()(
         inAppNotifications: state.inAppNotifications,
         parents: state.parents,
       }),
+      storage: createJSONStorage(() => ({
+        getItem: async (name: string): Promise<string | null> => {
+          return (await get(name)) || null;
+        },
+        setItem: async (name: string, value: string): Promise<void> => {
+          await set(name, value);
+        },
+        removeItem: async (name: string): Promise<void> => {
+          await del(name);
+        },
+      })),
     }
   )
 );

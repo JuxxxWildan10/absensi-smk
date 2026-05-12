@@ -1,4 +1,4 @@
-// @ts-nocheck
+
 // Prisma v5 config - standard setup tanpa adapter
 import { defineConfig } from "prisma/config";
 
