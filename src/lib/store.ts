@@ -174,6 +174,13 @@ export const useStore = create<AppState>()(
               set({ inAppNotifications: dataNotif.data });
             }
           }
+
+          // Tarik konfigurasi sekolah (Radius absensi, dll)
+          const resConfig = await fetch("/api/config");
+          const dataConfig = await resConfig.json();
+          if (dataConfig.success && dataConfig.data) {
+            set({ schoolConfig: dataConfig.data });
+          }
         } catch (e) {
           console.error("Gagal load data dari DB:", e);
         }
@@ -401,8 +408,20 @@ export const useStore = create<AppState>()(
 
       // ── Config ────────────────────────────────
       schoolConfig: SCHOOL_CONFIG,
-      updateSchoolConfig: (updates) =>
-        set((s) => ({ schoolConfig: { ...s.schoolConfig, ...updates } })),
+      updateSchoolConfig: async (updates) => {
+        // 1. Update ke Database
+        try {
+          await fetch("/api/config", {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(updates),
+          });
+        } catch (e) { console.error("Gagal update config DB", e); }
+
+        // 2. Update UI State
+        set((s) => ({ schoolConfig: { ...s.schoolConfig, ...updates } }));
+        get().addAuditLog("EDIT_CONFIG", "School Configuration");
+      },
 
       // ── Attendance ────────────────────────────────────────
       records: DUMMY_ATTENDANCE,
