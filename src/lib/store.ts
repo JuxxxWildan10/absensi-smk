@@ -175,12 +175,33 @@ export const useStore = create<AppState>()(
             }
           }
 
-          // Tarik konfigurasi sekolah (Radius absensi, dll)
-          const resConfig = await fetch("/api/config");
+          // Tarik konfigurasi sekolah
+          const resConfig = await fetch("/api/school-config");
           const dataConfig = await resConfig.json();
           if (dataConfig.success && dataConfig.data) {
             set({ schoolConfig: dataConfig.data });
           }
+
+          // Tarik data izin (permits)
+          const resPermits = await fetch("/api/permits");
+          const dataPermits = await resPermits.json();
+          if (dataPermits.success) set({ permits: dataPermits.data });
+
+          // Tarik pengumuman
+          const resAnn = await fetch("/api/announcements");
+          const dataAnn = await resAnn.json();
+          if (dataAnn.success) set({ announcements: dataAnn.data });
+
+          // Tarik event (kalender akademik)
+          const resEvents = await fetch("/api/events");
+          const dataEvents = await resEvents.json();
+          if (dataEvents.success) set({ events: dataEvents.data });
+
+          // Tarik audit logs
+          const resAudit = await fetch("/api/audit-logs");
+          const dataAudit = await resAudit.json();
+          if (dataAudit.success) set({ auditLogs: dataAudit.data });
+
         } catch (e) {
           console.error("Gagal load data dari DB:", e);
         }
@@ -411,8 +432,8 @@ export const useStore = create<AppState>()(
       updateSchoolConfig: async (updates) => {
         // 1. Update ke Database
         try {
-          await fetch("/api/config", {
-            method: "PATCH",
+          await fetch("/api/school-config", {
+            method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(updates),
           });
@@ -497,12 +518,30 @@ export const useStore = create<AppState>()(
 
       // ── Permits ───────────────────────────────────────────
       permits: DUMMY_PERMITS,
-      addPermit: (permit) =>
-        set((s) => ({ permits: [permit, ...s.permits] })),
-      updatePermit: (id, updates) =>
+      addPermit: async (permit) => {
+        try {
+          await fetch("/api/permits", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(permit),
+          });
+        } catch (e) { console.error("Gagal simpan izin DB", e); }
+        set((s) => ({ permits: [permit, ...s.permits] }));
+      },
+      updatePermit: async (id, updates) => {
+        try {
+          // Status bisa "approve" atau "reject" 
+          const action = updates.status === "approved" ? "approve" : "reject";
+          await fetch("/api/permits", {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id, action, ...updates }),
+          });
+        } catch (e) { console.error("Gagal update izin DB", e); }
         set((s) => ({
           permits: s.permits.map((p) => p.id === id ? { ...p, ...updates } : p),
-        })),
+        }));
+      },
       getPermitsByStudent: (studentId) =>
         get().permits.filter((p) => p.studentId === studentId),
       getPermitsByClass: (kelas) =>
@@ -512,7 +551,7 @@ export const useStore = create<AppState>()(
 
       // ── Audit Logs ────────────────────────────────────────
       auditLogs: DUMMY_AUDIT_LOGS,
-      addAuditLog: (action, target?, detail?) => {
+      addAuditLog: async (action, target?, detail?) => {
         const user = get().currentUser;
         if (!user) return;
         const log: AuditLog = {
@@ -525,16 +564,36 @@ export const useStore = create<AppState>()(
           detail,
           timestamp: new Date().toISOString(),
         };
+
+        try {
+          // Fire and forget ke DB
+          fetch("/api/audit-logs", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(log),
+          }).catch(() => {});
+        } catch (e) {}
+
         set((s) => ({ auditLogs: [log, ...s.auditLogs].slice(0, 500) }));
       },
 
       // ── Announcements ─────────────────────────────────────
       announcements: DUMMY_ANNOUNCEMENTS,
-      addAnnouncement: (a) => {
+      addAnnouncement: async (a) => {
+        try {
+          await fetch("/api/announcements", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(a),
+          });
+        } catch (e) { console.error("Gagal simpan pengumuman DB", e); }
         set((s) => ({ announcements: [a, ...s.announcements] }));
         get().addAuditLog("TAMBAH_PENGUMUMAN", a.title);
       },
-      deleteAnnouncement: (id) => {
+      deleteAnnouncement: async (id) => {
+        try {
+          await fetch(`/api/announcements?id=${id}`, { method: "DELETE" });
+        } catch (e) { console.error("Gagal hapus pengumuman DB", e); }
         set((s) => ({ announcements: s.announcements.filter((a) => a.id !== id) }));
         get().addAuditLog("HAPUS_PENGUMUMAN", id);
       },
@@ -552,15 +611,33 @@ export const useStore = create<AppState>()(
 
       // ── Academic Calendar ─────────────────────────────────
       events: DUMMY_EVENTS,
-      addEvent: (event) => {
+      addEvent: async (event) => {
+        try {
+          await fetch("/api/events", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(event),
+          });
+        } catch (e) { console.error("Gagal simpan event DB", e); }
         set((s) => ({ events: [event, ...s.events] }));
         get().addAuditLog("TAMBAH_EVENT", event.title);
       },
-      updateEvent: (id, updates) =>
+      updateEvent: async (id, updates) => {
+        try {
+          await fetch("/api/events", {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id, ...updates }),
+          });
+        } catch (e) { console.error("Gagal update event DB", e); }
         set((s) => ({
           events: s.events.map((e) => e.id === id ? { ...e, ...updates } : e),
-        })),
-      deleteEvent: (id) => {
+        }));
+      },
+      deleteEvent: async (id) => {
+        try {
+          await fetch(`/api/events?id=${id}`, { method: "DELETE" });
+        } catch (e) { console.error("Gagal hapus event DB", e); }
         set((s) => ({ events: s.events.filter((e) => e.id !== id) }));
         get().addAuditLog("HAPUS_EVENT", id);
       },
