@@ -17,6 +17,8 @@ export async function PATCH(
     // Jangan izinkan update password langsung tanpa hash
     if (body.password) {
       body.password = await bcrypt.hash(body.password, 10);
+    } else {
+      delete body.password; // Jangan timpa dengan string kosong
     }
 
     // Serialize studentIds jika ada (untuk wali)

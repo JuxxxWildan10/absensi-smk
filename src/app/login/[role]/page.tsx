@@ -43,19 +43,12 @@ export default function RoleLoginPage({ params }: { params: Promise<{ role: stri
     setError("");
     setLoading(true);
 
-    // Device binding: ambil atau buat ID unik perangkat ini
-    let deviceId = localStorage.getItem("absensi_device_id");
-    if (!deviceId) {
-      deviceId = "device-" + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-      localStorage.setItem("absensi_device_id", deviceId);
-    }
-
     try {
       // TAHAP 1: Coba login via API (terhubung ke Database Prisma/PostgreSQL)
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password, kelas, deviceId }),
+        body: JSON.stringify({ username, password, kelas }),
       });
 
       const result = await res.json();
@@ -91,7 +84,7 @@ export default function RoleLoginPage({ params }: { params: Promise<{ role: stri
         result.message === "Username tidak ditemukan" ||
         result.message === "Terjadi kesalahan server"
       ) {
-        const storeResult = login(username, password, kelas || undefined, deviceId);
+        const storeResult = login(username, password, kelas || undefined);
         setLoading(false);
 
         if (!storeResult.success) {
@@ -117,7 +110,7 @@ export default function RoleLoginPage({ params }: { params: Promise<{ role: stri
 
     } catch (err) {
       // Jika API tidak dapat dijangkau — fallback penuh ke store
-      const storeResult = login(username, password, kelas || undefined, deviceId);
+      const storeResult = login(username, password, kelas || undefined);
       setLoading(false);
 
       if (!storeResult.success) {

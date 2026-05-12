@@ -20,7 +20,7 @@ import {
 interface AuthState {
   currentUser: User | null;
   isAuthenticated: boolean;
-  login: (username: string, password: string, kelas?: string, deviceId?: string) => { success: boolean; message: string };
+  login: (username: string, password: string, kelas?: string) => { success: boolean; message: string };
   logout: () => void;
   updateProfile: (updates: Partial<User>) => void;
 }
@@ -185,7 +185,7 @@ export const useStore = create<AppState>()(
 
        
        
-      login: (username, password, kelas, deviceId) => {
+      login: (username, password, kelas) => {
         // Fungsi utama untuk menangani proses login
         // Gabungkan user statis (admin) dengan user dinamis di state (siswa, guru, wali)
         const adminUsers = ALL_USERS.filter(u => u.role === "admin");
@@ -204,17 +204,6 @@ export const useStore = create<AppState>()(
           }
           if ((user as Student).kelas !== kelas) {
             return { success: false, message: "Kelas yang dipilih tidak sesuai dengan data siswa" };
-          }
-          // Device Binding
-          if (deviceId) {
-            const student = user as Student;
-            if (student.deviceId && student.deviceId !== deviceId) {
-              return { success: false, message: "Akses Ditolak: Perangkat tidak dikenali. Akun Anda telah diikat (Binding) ke perangkat lain. Hubungi Admin." };
-            }
-            if (!student.deviceId) {
-              student.deviceId = deviceId;
-              get().updateStudent(student.id, { deviceId });
-            }
           }
         }
 

@@ -30,23 +30,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, message: "Akses Ditolak: Akun alumni sudah tidak memiliki akses login." }, { status: 403 });
     }
 
-    // Validasi kelas & device binding untuk siswa
+    // Validasi kelas untuk siswa
     if (user.role === "siswa") {
       if (!kelas) return NextResponse.json({ success: false, message: "Harap pilih kelas Anda" }, { status: 400 });
       if (user.kelas !== kelas) return NextResponse.json({ success: false, message: "Kelas yang dipilih tidak sesuai data siswa" }, { status: 401 });
-
-      // Device Binding
-      if (deviceId) {
-        if (user.deviceId && user.deviceId !== deviceId) {
-          return NextResponse.json({
-            success: false,
-            message: "Akses Ditolak: Perangkat tidak dikenali. Akun Anda terikat ke perangkat lain. Hubungi Admin untuk me-reset perangkat.",
-          }, { status: 403 });
-        }
-        if (!user.deviceId) {
-          await prisma.user.update({ where: { id: user.id }, data: { deviceId } });
-        }
-      }
     }
 
     // Verifikasi password (bcrypt)
