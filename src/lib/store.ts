@@ -138,65 +138,42 @@ export const useStore = create<AppState>()(
       hydrateFromDB: async () => {
         try {
           const currentUser = get().currentUser;
-          
-          // Tarik data siswa
+
+          // Tarik data siswa — replace dengan data DB jika ada
           const resSiswa = await fetch("/api/students");
           const dataSiswa = await resSiswa.json();
-          if (dataSiswa.success) {
-            // Merge dengan state yang ada agar DUMMY_STUDENTS tidak hilang
-            set((state) => {
-              const dbStudents = dataSiswa.data;
-              // Jika ID sama, gunakan DB, jika tidak, pertahankan dummy (untuk testing/demo)
-              const existingStudents = state.students.filter(ds => !dbStudents.some((db: any) => db.id === ds.id));
-              return { students: [...dbStudents, ...existingStudents] };
-            });
+          if (dataSiswa.success && dataSiswa.data.length > 0) {
+            // Replace: data DB selalu dominan, dummy tidak tercampur
+            set({ students: dataSiswa.data });
           }
 
           // Tarik data guru & wali dari Database
           const resUsers = await fetch("/api/users");
           const dataUsers = await resUsers.json();
-          if (dataUsers.success) {
+          if (dataUsers.success && dataUsers.data.length > 0) {
             const dbGurus = dataUsers.data.filter((u: any) => u.role === "guru");
             const dbWalis = dataUsers.data.filter((u: any) => u.role === "wali");
-            
-            set((state) => {
-              const existingTeachers = state.teachers.filter(t => !dbGurus.some((db: any) => db.id === t.id));
-              const existingParents = state.parents.filter(p => !dbWalis.some((db: any) => db.id === p.id));
-              return { 
-                teachers: [...dbGurus, ...existingTeachers],
-                parents: [...dbWalis, ...existingParents]
-              };
-            });
+            // Replace: jika DB punya data, pakai DB saja
+            if (dbGurus.length > 0) set({ teachers: dbGurus });
+            if (dbWalis.length > 0) set({ parents: dbWalis });
           }
 
-          // Tarik data absensi dari Database agar Desktop & Mobile selalu tersinkronisasi
+          // Tarik data absensi — replace dengan data DB agar Desktop & Mobile selalu tersinkronisasi
           const resAbsen = await fetch("/api/attendance");
           const dataAbsen = await resAbsen.json();
           if (dataAbsen.success) {
-            // Sinkronkan records di Zustand dengan data nyata di DB (Merge)
-            set((state) => {
-              const dbRecords = dataAbsen.data;
-              const existingRecords = state.records.filter(r => !dbRecords.some((db: any) => db.id === r.id));
-              return { records: [...dbRecords, ...existingRecords] };
-            });
+            // Replace: absensi dari DB adalah sumber kebenaran tunggal
+            set({ records: dataAbsen.data });
           }
 
-          // Tarik notifikasi jika user login
+          // Tarik notifikasi jika user login — replace agar selalu fresh dari DB
           if (currentUser) {
             const resNotif = await fetch(`/api/notifications?userId=${currentUser.id}`);
             const dataNotif = await resNotif.json();
             if (dataNotif.success) {
-              set((state) => {
-                const dbNotif = dataNotif.data;
-                const existingNotif = state.inAppNotifications.filter(n => !dbNotif.some((db: any) => db.id === n.id));
-                return { inAppNotifications: [...dbNotif, ...existingNotif] };
-              });
+              set({ inAppNotifications: dataNotif.data });
             }
           }
-
-          // Tarik data guru (kita bisa gunakan endpoint students juga karena strukturnya mirip User, tapi dengan parameter role)
-          // *Note: Jika butuh, kita bisa buat endpoint khusus /api/teachers, tapi untuk simplifikasi kita asumsikan /api/students meng-handle all user role jika diberikan query parameter.
-          // Mari panggil /api/students tapi untuk skenario ini kita bypass untuk prototype.
         } catch (e) {
           console.error("Gagal load data dari DB:", e);
         }
@@ -351,7 +328,7 @@ export const useStore = create<AppState>()(
       },
       updateTeacher: async (id, updates) => {
         try {
-          await fetch(`/api/students/${id}`, { // Bisa diubah ke /api/users/[id] nantinya, untuk prototype ini aman pakai rute siswa krn sama-sama user
+          await fetch(`/api/users/${id}`, {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(updates),
@@ -368,7 +345,7 @@ export const useStore = create<AppState>()(
       },
       deleteTeacher: async (id) => {
         try {
-          await fetch(`/api/students/${id}`, { method: "DELETE" });
+          await fetch(`/api/users/${id}`, { method: "DELETE" });
         } catch (e) { console.error("Gagal hapus guru DB", e); }
 
         set((s) => ({ teachers: s.teachers.filter((t) => t.id !== id) }));
@@ -413,7 +390,7 @@ export const useStore = create<AppState>()(
       },
       updateParent: async (id, updates) => {
         try {
-          await fetch(`/api/students/${id}`, { 
+          await fetch(`/api/users/${id}`, { 
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(updates),
@@ -427,7 +404,7 @@ export const useStore = create<AppState>()(
       },
       deleteParent: async (id) => {
         try {
-          await fetch(`/api/students/${id}`, { method: "DELETE" });
+          await fetch(`/api/users/${id}`, { method: "DELETE" });
         } catch (e) { console.error("Gagal hapus wali DB", e); }
 
         set((s) => ({ parents: s.parents.filter((p) => p.id !== id) }));

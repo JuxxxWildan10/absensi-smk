@@ -1,8 +1,8 @@
 import webpush from "web-push";
 
 // Define your VAPID keys from environment variables
-const publicVapidKey = process.env.VAPID_PUBLIC_KEY || "BE-J0z8Mb-jQhy6eQeZox62xtkBp28LiZ8pTtTmtS69alWxmHvAJ_JVB0XHYFfpcVz2BsNjd0Kfr3HdrSqS-TPc";
-const privateVapidKey = process.env.VAPID_PRIVATE_KEY || "lWxmHvAJ_JVB0XHYFfpcVz2BsNjd0Kfr3HdrSqS-TPc";
+const publicVapidKey = process.env.VAPID_PUBLIC_KEY || "BETO6krStUGreV-1DqYrtliy7olYfeUZtEWTjG8yQOUTE9O3S1AsYsPCKwMIE7GH91sU4MujfkdsU1ybv59sNZA";
+const privateVapidKey = process.env.VAPID_PRIVATE_KEY || "-ZrgCe58FhkGzzwCiT3cw0UJVc6OZSx6LBo4sWDCqiE";
 
 webpush.setVapidDetails(
   "mailto:admin@absensismk.com", // Contact email

@@ -5,10 +5,30 @@
 // ============================================================
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { DUMMY_STUDENTS, DUMMY_TEACHERS, DUMMY_PARENTS, DUMMY_ATTENDANCE } from "@/lib/data";
+import { DUMMY_STUDENTS, DUMMY_TEACHERS, DUMMY_PARENTS, DUMMY_ATTENDANCE, DUMMY_ADMINS, SCHOOL_CONFIG } from "@/lib/data";
 
 export async function GET() {
   try {
+    // 0. Masukkan Admin (PENTING: agar login admin melalui DB berhasil)
+    let addedAdmin = 0;
+    for (const admin of DUMMY_ADMINS) {
+      const exists = await prisma.user.findFirst({ where: { username: admin.username } });
+      if (!exists) {
+        await prisma.user.create({
+          data: {
+            id: admin.id,
+            name: admin.name,
+            username: admin.username,
+            password: admin.password, // Sudah di-hash di data.ts
+            role: "admin",
+            phone: admin.phone ?? null,
+            isActive: admin.isActive,
+          }
+        });
+        addedAdmin++;
+      }
+    }
+
     // 1. Masukkan Guru
     let addedGurus = 0;
     for (const guru of DUMMY_TEACHERS) {
@@ -19,7 +39,7 @@ export async function GET() {
             id: guru.id,
             name: guru.name,
             username: guru.username,
-            password: guru.password, // Sudah di-hash di data.ts
+            password: guru.password,
             role: "guru",
             nip: guru.nip,
             mataPelajaran: guru.mataPelajaran ? JSON.stringify(guru.mataPelajaran) : null,
@@ -99,19 +119,40 @@ export async function GET() {
       }
     }
 
+    // 5. Masukkan School Config (jika belum ada)
+    const existingConfig = await prisma.schoolConfig.findFirst();
+    if (!existingConfig) {
+      await prisma.schoolConfig.create({
+        data: {
+          id: SCHOOL_CONFIG.id,
+          name: SCHOOL_CONFIG.name,
+          address: SCHOOL_CONFIG.address,
+          latitude: SCHOOL_CONFIG.latitude,
+          longitude: SCHOOL_CONFIG.longitude,
+          radius: SCHOOL_CONFIG.radius,
+          checkInStart: SCHOOL_CONFIG.checkInStart,
+          checkInEnd: SCHOOL_CONFIG.checkInEnd,
+          checkOutStart: SCHOOL_CONFIG.checkOutStart,
+          checkOutEnd: SCHOOL_CONFIG.checkOutEnd,
+        }
+      });
+    }
+
     return NextResponse.json({ 
       success: true, 
       message: "Proses Seeding Berhasil! Data dummy berhasil dipindahkan ke Database Real.",
       details: {
+        admin_baru: addedAdmin,
         guru_baru: addedGurus,
         siswa_baru: addedSiswa,
         wali_baru: addedWali,
-        absensi_baru: addedAbsen
+        absensi_baru: addedAbsen,
       }
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : String(error);
     console.error("[API/seed error]", error);
-    return NextResponse.json({ success: false, message: "Terjadi kesalahan saat seeding", error: error.message }, { status: 500 });
+    return NextResponse.json({ success: false, message: "Terjadi kesalahan saat seeding", error: msg }, { status: 500 });
   }
 }

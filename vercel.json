@@ -2,7 +2,7 @@
   "crons": [
     {
       "path": "/api/cron/check-absentees",
-      "schedule": "0 * * * *"
+      "schedule": "30 0 * * 1-5"
     }
   ]
 }

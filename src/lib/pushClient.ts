@@ -14,7 +14,7 @@ const urlB64ToUint8Array = (base64String: string) => {
 };
 
 // VAPID Public Key - Must match the one used in the backend
-const publicVapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || "BE-J0z8Mb-jQhy6eQeZox62xtkBp28LiZ8pTtTmtS69alWxmHvAJ_JVB0XHYFfpcVz2BsNjd0Kfr3HdrSqS-TPc";
+const publicVapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || "BETO6krStUGreV-1DqYrtliy7olYfeUZtEWTjG8yQOUTE9O3S1AsYsPCKwMIE7GH91sU4MujfkdsU1ybv59sNZA";
 
 export async function subscribeToPush(userId: string) {
   if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
