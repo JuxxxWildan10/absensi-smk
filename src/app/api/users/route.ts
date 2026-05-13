@@ -17,7 +17,8 @@ export async function GET(req: NextRequest) {
       orderBy: { name: "asc" },
     });
 
-    const parsed = users.map(u => ({
+    // Strip password: hash bcrypt TIDAK boleh dikirim ke client
+    const parsed = users.map(({ password: _, ...u }) => ({
       ...u,
       studentIds: u.studentIds ? JSON.parse(u.studentIds) : undefined,
     }));

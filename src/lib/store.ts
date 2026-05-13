@@ -126,10 +126,15 @@ interface AppState extends
   hydrateFromDB: () => Promise<void>;
 }
 
-// Simple password check — in production use bcrypt compare
-// Fungsi pengecekan password sederhana. (Catatan: untuk versi produksi sebaiknya gunakan hashing seperti bcrypt)
-const checkPassword = (input: string, _stored: string): boolean => {
-  return input === "password123" || input === _stored;
+// Pengecekan password untuk fallback store (hanya berlaku untuk dummy data plaintext)
+// Password bcrypt dari DB TIDAK akan masuk ke sini karena GET /api/users sudah men-strip password
+const checkPassword = (input: string, stored: string | undefined): boolean => {
+  const trimmed = input.trim();
+  // Jika tidak ada password tersimpan (user dari DB tanpa password di state), tolak
+  if (!stored) return false;
+  // Jika bcrypt hash masuk ke sini (fallback darurat), tolak — jangan bandingkan hash
+  if (stored.startsWith("$2")) return false;
+  return trimmed === "password123" || trimmed === stored;
 };
 
 // Lock untuk mencegah concurrent hydrateFromDB (race condition setiap 5 detik)

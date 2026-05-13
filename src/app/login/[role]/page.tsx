@@ -50,10 +50,11 @@ export default function RoleLoginPage({ params }: { params: Promise<{ role: stri
 
     try {
       // TAHAP 1: Coba login via API (terhubung ke Database Prisma/PostgreSQL)
+      // Trim untuk menghindari spasi/karakter ekstra dari keyboard HP
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password, kelas }),
+        body: JSON.stringify({ username: username.trim(), password: password.trim(), kelas }),
       });
 
       const result = await res.json();

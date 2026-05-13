@@ -13,7 +13,11 @@ const JWT_SECRET = new TextEncoder().encode(
 
 export async function POST(req: NextRequest) {
   try {
-    const { username, password, kelas, deviceId } = await req.json();
+    const body = await req.json();
+    const username = (body.username || "").trim();
+    const password = (body.password || "").trim();
+    const kelas = body.kelas;
+    const deviceId = body.deviceId;
 
     if (!username || !password) {
       return NextResponse.json({ success: false, message: "Username dan password wajib diisi" }, { status: 400 });
