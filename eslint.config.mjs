@@ -14,6 +14,7 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // Generated / utility scripts (non-app JS files)
     "fix-lint.js",
+    "fix.js",
     "parse.js",
     "download-models.js",
     "create-icons.js",

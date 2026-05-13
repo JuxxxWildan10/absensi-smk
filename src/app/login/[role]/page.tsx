@@ -1,5 +1,5 @@
 "use client";
-import { useState, use } from "react";
+import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
 import { Shield, Eye, EyeOff, User as UserIcon, Lock, AlertCircle, Loader2, Users, ArrowLeft } from "lucide-react";
 import { useStore } from "@/lib/store";
@@ -33,10 +33,15 @@ export default function RoleLoginPage({ params }: { params: Promise<{ role: stri
 
   const classes = useStore((s) => s.classes) || ["XII DKV 1", "XI TSM 1"];
 
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
   const isValidRole = ["admin", "guru", "siswa", "wali"].includes(role);
   if (!isValidRole) {
     return <div style={{ padding: 48, textAlign: "center" }}>Role tidak valid</div>;
   }
+
+  if (!mounted) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -42,8 +42,8 @@ export default function LandingPage() {
     }
   }, [isAuthenticated, currentUser, router]);
 
-  // Cegah render landing page berkedip jika sedang proses redirect
-  if (isAuthenticated) return null;
+  // Cegah render berkedip jika sedang proses redirect atau rehidrasi
+  if (!mounted || isAuthenticated) return null;
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg-primary)" }}>

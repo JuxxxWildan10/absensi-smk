@@ -1,5 +1,5 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useStore } from "@/lib/store";
 import Sidebar from "@/components/Sidebar";
@@ -11,9 +11,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const router = useRouter(); // Hook untuk navigasi URL
   const { isAuthenticated } = useStore(); // Mengambil status autentikasi pengguna dari global store
 
+  const [mounted, setMounted] = useState(false);
+
   // Efek samping (side-effect) yang berjalan saat komponen dirender
   // Mengecek apakah pengguna sudah login, jika belum maka langsung dilempar (redirect) ke halaman login
   useEffect(() => {
+    setMounted(true);
     if (!isAuthenticated) {
       router.replace("/login");
     } else {
@@ -52,8 +55,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }
   }, [isAuthenticated, router]);
 
-  // Jika belum terautentikasi, jangan render apapun (mencegah kedipan UI sesaat sebelum redirect)
-  if (!isAuthenticated) return null;
+  // Jika belum terautentikasi atau belum di-mount, jangan render apapun (mencegah hydration mismatch & kedipan UI)
+  if (!mounted || !isAuthenticated) return null;
 
   return (
     // Container utama dengan flexbox untuk menyusun Sidebar dan konten utama bersebelahan
