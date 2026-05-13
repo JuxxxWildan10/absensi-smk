@@ -268,8 +268,31 @@ export default function AbsensiPage() {
   // ── PIN Fallback ────────────────────────────────────────────
   const handlePinVerify = async () => {
     setPinError("");
-    if (pinInput !== student?.password && pinInput !== "password123") {
-      setPinError("PIN salah. Gunakan password akun Anda.");
+    if (!pinInput.trim()) {
+      setPinError("PIN tidak boleh kosong.");
+      return;
+    }
+    setLoading(true);
+    try {
+      // Verifikasi password via API (bcrypt di server) — tidak bandingkan plaintext di client
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: student?.username,
+          password: pinInput,
+          kelas: student?.kelas,
+        }),
+      });
+      const result = await res.json();
+      if (!result.success) {
+        setPinError("PIN salah. Gunakan password akun Anda.");
+        setLoading(false);
+        return;
+      }
+    } catch {
+      setPinError("Tidak dapat terhubung ke server untuk verifikasi.");
+      setLoading(false);
       return;
     }
     await recordAttendance(student?.faceDescriptor ?? [], false, true);

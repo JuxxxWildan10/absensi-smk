@@ -132,78 +132,87 @@ const checkPassword = (input: string, _stored: string): boolean => {
   return input === "password123" || input === _stored;
 };
 
+// Lock untuk mencegah concurrent hydrateFromDB (race condition setiap 5 detik)
+let isHydrating = false;
+
 export const useStore = create<AppState>()(
   persist(
     (set, get) => ({
       hydrateFromDB: async () => {
+        if (isHydrating) return; // Skip jika masih dalam proses
+        isHydrating = true;
         try {
           const currentUser = get().currentUser;
 
-          // Tarik data siswa — replace dengan data DB jika ada
-          const resSiswa = await fetch("/api/students");
-          const dataSiswa = await resSiswa.json();
+          // Jalankan semua fetch secara PARALEL untuk efisiensi maksimal
+          const [resSiswa, resUsers, resAbsen, resConfig, resPermits, resAnn, resEvents, resAudit] =
+            await Promise.all([
+              fetch("/api/students"),
+              fetch("/api/users"),
+              fetch("/api/attendance"),
+              fetch("/api/school-config"),
+              fetch("/api/permits"),
+              fetch("/api/announcements"),
+              fetch("/api/events"),
+              fetch("/api/audit-logs"),
+            ]);
+
+          const [dataSiswa, dataUsers, dataAbsen, dataConfig, dataPermits, dataAnn, dataEvents, dataAudit] =
+            await Promise.all([
+              resSiswa.json(),
+              resUsers.json(),
+              resAbsen.json(),
+              resConfig.json(),
+              resPermits.json(),
+              resAnn.json(),
+              resEvents.json(),
+              resAudit.json(),
+            ]);
+
+          // Tarik data siswa — DB selalu dominan
           if (dataSiswa.success && dataSiswa.data.length > 0) {
-            // Replace: data DB selalu dominan, dummy tidak tercampur
             set({ students: dataSiswa.data });
           }
 
-          // Tarik data guru & wali dari Database
-          const resUsers = await fetch("/api/users");
-          const dataUsers = await resUsers.json();
+          // Tarik data guru & wali
           if (dataUsers.success && dataUsers.data.length > 0) {
             const dbGurus = dataUsers.data.filter((u: any) => u.role === "guru");
             const dbWalis = dataUsers.data.filter((u: any) => u.role === "wali");
-            // Replace: jika DB punya data, pakai DB saja
             if (dbGurus.length > 0) set({ teachers: dbGurus });
             if (dbWalis.length > 0) set({ parents: dbWalis });
           }
 
-          // Tarik data absensi — replace dengan data DB agar Desktop & Mobile selalu tersinkronisasi
-          const resAbsen = await fetch("/api/attendance");
-          const dataAbsen = await resAbsen.json();
-          if (dataAbsen.success) {
-            // Replace: absensi dari DB adalah sumber kebenaran tunggal
-            set({ records: dataAbsen.data });
-          }
-
-          // Tarik notifikasi jika user login — replace agar selalu fresh dari DB
-          if (currentUser) {
-            const resNotif = await fetch(`/api/notifications?userId=${currentUser.id}`);
-            const dataNotif = await resNotif.json();
-            if (dataNotif.success) {
-              set({ inAppNotifications: dataNotif.data });
-            }
-          }
+          // Tarik data absensi — sumber kebenaran tunggal
+          if (dataAbsen.success) set({ records: dataAbsen.data });
 
           // Tarik konfigurasi sekolah
-          const resConfig = await fetch("/api/school-config");
-          const dataConfig = await resConfig.json();
-          if (dataConfig.success && dataConfig.data) {
-            set({ schoolConfig: dataConfig.data });
-          }
+          if (dataConfig.success && dataConfig.data) set({ schoolConfig: dataConfig.data });
 
-          // Tarik data izin (permits)
-          const resPermits = await fetch("/api/permits");
-          const dataPermits = await resPermits.json();
+          // Tarik data izin
           if (dataPermits.success) set({ permits: dataPermits.data });
 
           // Tarik pengumuman
-          const resAnn = await fetch("/api/announcements");
-          const dataAnn = await resAnn.json();
           if (dataAnn.success) set({ announcements: dataAnn.data });
 
-          // Tarik event (kalender akademik)
-          const resEvents = await fetch("/api/events");
-          const dataEvents = await resEvents.json();
+          // Tarik event kalender
           if (dataEvents.success) set({ events: dataEvents.data });
 
           // Tarik audit logs
-          const resAudit = await fetch("/api/audit-logs");
-          const dataAudit = await resAudit.json();
           if (dataAudit.success) set({ auditLogs: dataAudit.data });
+
+          // Tarik notifikasi per-user secara terpisah (butuh userId)
+          if (currentUser) {
+            try {
+              const resNotif = await fetch(`/api/notifications?userId=${currentUser.id}`);
+              const dataNotif = await resNotif.json();
+              if (dataNotif.success) set({ inAppNotifications: dataNotif.data });
+            } catch {}
+          }
 
         } catch (e) {
           console.error("Gagal load data dari DB:", e);
+        } finally {
+          isHydrating = false; // Reset lock agar siklus berikutnya bisa berjalan
         }
       },
 
