@@ -40,10 +40,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       
       runCron();
       
-      // Polling: Sinkronkan Data dari Database setiap 5 detik agar Desktop dan HP "langsung terkoneksi"
+      // Polling: Sinkronkan Data dari Database setiap 1 detik agar Desktop dan HP "langsung terkoneksi" (Mode Demo)
       const syncInterval = setInterval(() => {
         useStore.getState().hydrateFromDB();
-      }, 5 * 1000);
+      }, 1 * 1000);
 
       // Pasang interval agar mengecek setiap 5 menit (jika tab dibiarkan terbuka terus)
       const cronInterval = setInterval(runCron, 5 * 60 * 1000);
