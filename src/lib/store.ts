@@ -278,20 +278,27 @@ export const useStore = create<AppState>()(
       },
       updateStudent: async (id, updates) => {
         // 1. Update ke Database
+        // Hapus field password jika kosong agar tidak me-reset password yang sudah ada
+        const payload = { ...updates };
+        if (!payload.password || String(payload.password).trim() === "") {
+          delete payload.password;
+        }
         try {
           await fetch(`/api/students/${id}`, {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(updates),
+            body: JSON.stringify(payload),
           });
         } catch (e) { console.error("Gagal update DB", e); }
 
-        // 2. Update UI
+        // 2. Update UI (jika password kosong, jangan timpa di state)
+        const uiUpdates = { ...payload };
+        delete uiUpdates.password; // password tidak disimpan di client state
         set((s) => ({
           students: s.students.map((st) =>
-            st.id === id ? { ...st, ...updates } : st
+            st.id === id ? { ...st, ...uiUpdates } : st
           ),
-          currentUser: s.currentUser?.id === id ? { ...s.currentUser, ...updates } : s.currentUser
+          currentUser: s.currentUser?.id === id ? { ...s.currentUser, ...uiUpdates } : s.currentUser
         }));
         get().addAuditLog("EDIT_SISWA", id);
       },
@@ -371,19 +378,26 @@ export const useStore = create<AppState>()(
         get().addAuditLog("TAMBAH_GURU", teacher.name);
       },
       updateTeacher: async (id, updates) => {
+        // Hapus field password jika kosong agar tidak me-reset password yang sudah ada
+        const payload = { ...updates };
+        if (!payload.password || String(payload.password).trim() === "") {
+          delete payload.password;
+        }
         try {
           await fetch(`/api/users/${id}`, {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(updates),
+            body: JSON.stringify(payload),
           });
         } catch (e) { console.error("Gagal update guru DB", e); }
 
+        const uiUpdates = { ...payload };
+        delete uiUpdates.password;
         set((s) => ({
           teachers: s.teachers.map((t) =>
-            t.id === id ? { ...t, ...updates } : t
+            t.id === id ? { ...t, ...uiUpdates } : t
           ),
-          currentUser: s.currentUser?.id === id ? { ...s.currentUser, ...updates } : s.currentUser
+          currentUser: s.currentUser?.id === id ? { ...s.currentUser, ...uiUpdates } : s.currentUser
         }));
         get().addAuditLog("EDIT_GURU", id);
       },
@@ -433,17 +447,24 @@ export const useStore = create<AppState>()(
         set((s) => ({ parents: [...s.parents, parent] }));
       },
       updateParent: async (id, updates) => {
+        // Hapus field password jika kosong agar tidak me-reset password yang sudah ada
+        const payload = { ...updates };
+        if (!payload.password || String(payload.password).trim() === "") {
+          delete payload.password;
+        }
         try {
           await fetch(`/api/users/${id}`, { 
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(updates),
+            body: JSON.stringify(payload),
           });
         } catch (e) { console.error("Gagal update wali DB", e); }
 
+        const uiUpdates = { ...payload };
+        delete uiUpdates.password;
         set((s) => ({
-          parents: s.parents.map((p) => p.id === id ? { ...p, ...updates } : p),
-          currentUser: s.currentUser?.id === id ? { ...s.currentUser, ...updates } : s.currentUser,
+          parents: s.parents.map((p) => p.id === id ? { ...p, ...uiUpdates } : p),
+          currentUser: s.currentUser?.id === id ? { ...s.currentUser, ...uiUpdates } : s.currentUser,
         }));
       },
       deleteParent: async (id) => {

@@ -386,12 +386,12 @@ export default function AdminStudentsPage() {
                   { label: "Nama Lengkap", key: "name", type: "text" },
                   { label: "NISN", key: "nisn", type: "text" },
                   { label: "Username", key: "username", type: "text" },
-                  { label: "Password", key: "password", type: "text" },
+                  { label: `Password ${isEdit ? "(Kosongkan jika tidak diubah)" : ""}`, key: "password", type: "text", required: !isEdit },
                   { label: "Jurusan", key: "jurusan", type: "text" },
-                ].map(({ label, key, type }) => (
+                ].map(({ label, key, type, required }) => (
                   <div key={key}>
                     <label style={{ fontSize: 13, color: "var(--text-secondary)", marginBottom: 6, display: "block" }}>{label}</label>
-                    <input type={type} className="input-field" value={(formData as any)[key]} onChange={(e) => setFormData({ ...formData, [key]: e.target.value })} required />
+                    <input type={type} className="input-field" value={(formData as any)[key] || ""} onChange={(e) => setFormData({ ...formData, [key]: e.target.value })} required={required !== undefined ? required : true} />
                   </div>
                 ))}
                 <div>
