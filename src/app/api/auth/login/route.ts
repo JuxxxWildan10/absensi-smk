@@ -23,7 +23,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, message: "Username dan password wajib diisi" }, { status: 400 });
     }
 
-    const user = await prisma.user.findUnique({ where: { username } });
+    // Gunakan findFirst dengan mode insensitive untuk mengatasi auto-capitalize dari keyboard HP
+    const user = await prisma.user.findFirst({
+      where: {
+        username: { equals: username, mode: "insensitive" },
+      },
+    });
 
     if (!user) {
       return NextResponse.json({ success: false, message: "Username tidak ditemukan" }, { status: 401 });
