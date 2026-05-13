@@ -5,12 +5,26 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-// GET - Ambil konfigurasi sekolah
 export async function GET() {
   try {
     const config = await prisma.schoolConfig.findFirst();
     if (!config) {
-      return NextResponse.json({ success: false, message: "Konfigurasi sekolah belum diatur" }, { status: 404 });
+      // Kembalikan default config dari seed data agar client tidak kosong
+      return NextResponse.json({
+        success: true,
+        data: {
+          id: "school-1",
+          name: "SMK ARYA SINGASARI LARANGAN",
+          address: "Jl. Pendidikan No. 1",
+          latitude: -6.9597244,
+          longitude: 108.9829353,
+          radius: 100,
+          checkInStart: "06:30",
+          checkInEnd: "08:00",
+          checkOutStart: "14:00",
+          checkOutEnd: "17:00",
+        },
+      });
     }
     return NextResponse.json({ success: true, data: config });
   } catch (error) {

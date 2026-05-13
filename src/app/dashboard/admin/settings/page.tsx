@@ -1,6 +1,6 @@
 "use client";
 import { useStore } from "@/lib/store";
-import { MapPin, Clock, Save, Moon, Sun, Shield } from "lucide-react";
+import { MapPin, Clock, Save, Moon, Sun, Shield, Zap, RotateCcw } from "lucide-react";
 import Toast, { ToastType } from "@/components/Toast";
 import { useState, useEffect } from "react";
 
@@ -22,6 +22,21 @@ export default function AdminSettingsPage() {
     checkOutEnd: schoolConfig.checkOutEnd,
   });
 
+  // Sinkronisasi form jika schoolConfig diupdate dari DB (via polling 5 detik)
+  useEffect(() => {
+    setForm({
+      name: schoolConfig.name,
+      address: schoolConfig.address,
+      latitude: schoolConfig.latitude,
+      longitude: schoolConfig.longitude,
+      radius: schoolConfig.radius,
+      checkInStart: schoolConfig.checkInStart,
+      checkInEnd: schoolConfig.checkInEnd,
+      checkOutStart: schoolConfig.checkOutStart,
+      checkOutEnd: schoolConfig.checkOutEnd,
+    });
+  }, [schoolConfig]);
+
   useEffect(() => {
     const saved = localStorage.getItem("theme");
     const dark = saved !== "light";
@@ -39,7 +54,22 @@ export default function AdminSettingsPage() {
 
   const handleSave = () => {
     updateSchoolConfig(form);
-    setToast({ message: "Pengaturan berhasil disimpan!", type: "success" });
+    setToast({ message: "✅ Pengaturan disimpan ke database! Semua HP akan sinkron dalam 5 detik.", type: "success" });
+  };
+
+  // Mode Demo: radius 9999m agar bisa absen dari mana saja (untuk presentasi/demo)
+  const handleDemoMode = () => {
+    const demoForm = { ...form, radius: 9999 };
+    setForm(demoForm);
+    updateSchoolConfig(demoForm);
+    setToast({ message: "🚀 Mode Demo aktif! Radius 9999m — semua HP tersinkron dalam 5 detik.", type: "success" });
+  };
+
+  const handleResetRadius = () => {
+    const normalForm = { ...form, radius: 100 };
+    setForm(normalForm);
+    updateSchoolConfig(normalForm);
+    setToast({ message: "⚙️ Radius dikembalikan ke 100m (mode normal).", type: "info" });
   };
 
   return (
@@ -101,6 +131,17 @@ export default function AdminSettingsPage() {
         <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
           <MapPin size={18} color="var(--accent-primary)" /> Konfigurasi Geofencing
         </div>
+        {/* Mode Demo Banner */}
+        {form.radius >= 9999 && (
+          <div style={{
+            display: "flex", alignItems: "center", gap: 10, padding: "10px 14px",
+            background: "rgba(245,158,11,0.12)", border: "1px solid rgba(245,158,11,0.3)",
+            borderRadius: 10, marginBottom: 12, fontSize: 13, color: "#f59e0b", fontWeight: 600,
+          }}>
+            <Zap size={15} />
+            Mode Demo Aktif — Radius {form.radius}m (absen dari mana saja)
+          </div>
+        )}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
           <div>
             <label style={{ display: "block", fontSize: 13, marginBottom: 6, color: "var(--text-secondary)" }}>Latitude</label>
@@ -115,13 +156,34 @@ export default function AdminSettingsPage() {
         </div>
         <div>
           <label style={{ display: "block", fontSize: 13, marginBottom: 6, color: "var(--text-secondary)" }}>
-            Radius Toleransi (meter) — saat ini: {form.radius}m
+            Radius Toleransi (meter) — saat ini: <strong style={{ color: form.radius >= 9999 ? "#f59e0b" : "var(--accent-primary)" }}>{form.radius}m</strong>
           </label>
           <input className="input-field" type="number" value={form.radius}
             onChange={e => setForm(f => ({ ...f, radius: Number(e.target.value) }))} />
         </div>
+        {/* Tombol Mode Demo & Reset */}
+        <div style={{ display: "flex", gap: 10, marginTop: 14 }}>
+          <button id="btn-demo-mode" onClick={handleDemoMode}
+            style={{
+              flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+              padding: "10px 16px", borderRadius: 10, cursor: "pointer", fontWeight: 600, fontSize: 13,
+              background: "rgba(245,158,11,0.12)", border: "1px solid rgba(245,158,11,0.3)",
+              color: "#f59e0b", transition: "all 0.2s",
+            }}>
+            <Zap size={14} /> Mode Demo (9999m)
+          </button>
+          <button id="btn-reset-radius" onClick={handleResetRadius}
+            style={{
+              flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+              padding: "10px 16px", borderRadius: 10, cursor: "pointer", fontWeight: 600, fontSize: 13,
+              background: "rgba(16,185,129,0.10)", border: "1px solid rgba(16,185,129,0.25)",
+              color: "#10b981", transition: "all 0.2s",
+            }}>
+            <RotateCcw size={14} /> Reset Normal (100m)
+          </button>
+        </div>
         <div style={{ marginTop: 12, fontSize: 12, color: "var(--text-muted)", padding: "10px 12px", background: "rgba(59,130,246,0.06)", borderRadius: 8 }}>
-          💡 Koordinat digunakan untuk memvalidasi lokasi absensi siswa. Pastikan koordinat akurat sesuai lokasi sekolah.
+          💡 Klik <strong>Mode Demo</strong> untuk mengaktifkan radius tak terbatas saat presentasi. Semua HP siswa akan otomatis menyesuaikan dalam 5 detik.
         </div>
       </div>
 
