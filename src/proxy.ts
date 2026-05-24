@@ -10,6 +10,7 @@ const JWT_SECRET = new TextEncoder().encode(
 const PUBLIC_API_ROUTES = [
   "/api/auth/login",
   "/api/seed",
+  "/api/reset-admin",
   "/api/push/subscribe", // Push notifications bisa public jika pakai Vapid
 ];
 
