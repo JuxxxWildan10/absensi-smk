@@ -1,24 +1,21 @@
-const { PrismaClient } = require('@prisma/client');
-const bcrypt = require('bcryptjs');
+const fs = require('fs');
+const path = require('path');
 
-const prisma = new PrismaClient();
-
-async function fix() {
-  console.log("Fixing passwords...");
-  const users = await prisma.user.findMany();
-  let count = 0;
-  const hash = await bcrypt.hash('password123', 10);
-  
-  for (const u of users) {
-    if (!u.password || u.password === '' || u.password.length < 20) {
-      await prisma.user.update({
-        where: { id: u.id },
-        data: { password: hash }
-      });
-      count++;
+function processDir(dir) {
+  const files = fs.readdirSync(dir);
+  for (const file of files) {
+    const fullPath = path.join(dir, file);
+    if (fs.statSync(fullPath).isDirectory()) {
+      processDir(fullPath);
+    } else if (file === 'route.ts') {
+      let content = fs.readFileSync(fullPath, 'utf8');
+      if (!content.includes('force-dynamic')) {
+        content = 'export const dynamic = "force-dynamic";\n' + content;
+        fs.writeFileSync(fullPath, content);
+      }
     }
   }
-  console.log('Fixed passwords for ' + count + ' users.');
 }
 
-fix().finally(() => prisma.$disconnect());
+processDir(path.join(__dirname, 'src', 'app', 'api'));
+console.log('Successfully added force-dynamic to all API routes');

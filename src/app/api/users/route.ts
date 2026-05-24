@@ -22,6 +22,7 @@ export async function GET(req: NextRequest) {
     const parsed = users.map(({ password: _, ...u }) => ({
       ...u,
       studentIds: u.studentIds ? JSON.parse(u.studentIds) : undefined,
+      mataPelajaran: u.mataPelajaran ? JSON.parse(u.mataPelajaran) : [],
     }));
 
     return NextResponse.json({ success: true, data: parsed });
@@ -57,12 +58,16 @@ export async function POST(req: NextRequest) {
         isActive: true,
         ...rest,
         studentIds: rest.studentIds ? JSON.stringify(rest.studentIds) : null,
+        mataPelajaran: rest.mataPelajaran ? JSON.stringify(rest.mataPelajaran) : null,
       },
     });
 
-    await prisma.auditLog.create({
-      data: { userId: "system", userName: "System", role: "admin", action: "TAMBAH_USER", target: name },
-    });
+    const adminUser = await prisma.user.findFirst({ where: { role: "admin" } });
+    if (adminUser) {
+      await prisma.auditLog.create({
+        data: { userId: adminUser.id, userName: adminUser.name, role: "admin", action: "TAMBAH_USER", target: name },
+      });
+    }
 
     const { password: _, ...safe } = user;
     return NextResponse.json({ success: true, data: safe }, { status: 201 });
