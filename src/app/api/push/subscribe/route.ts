@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 // ============================================================
 // API Route: POST /api/push/subscribe
 // Menyimpan Web Push subscription dari browser ke database

@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 // ============================================================
 // API Route: PATCH /api/users/[id]  → Update guru/wali
 //            DELETE /api/users/[id] → Hapus guru/wali

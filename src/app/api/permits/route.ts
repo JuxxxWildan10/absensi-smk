@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 // ============================================================
 // API Route: GET  /api/permits  → Daftar pengajuan izin
 //            POST /api/permits  → Buat permohonan izin

@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 // ============================================================
 // API Route: GET  /api/attendance      → Rekap absensi
 //            POST /api/attendance      → Check-in siswa

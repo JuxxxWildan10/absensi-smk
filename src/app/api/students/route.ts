@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 // ============================================================
 // API Route: GET /api/students         → Semua siswa
 //            POST /api/students        → Tambah siswa baru

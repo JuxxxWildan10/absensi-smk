@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 // ============================================================
 // API Route: GET /api/seed
 // Fungsi Khusus untuk memindahkan data DUMMY ke DATABASE REAL (Prisma)

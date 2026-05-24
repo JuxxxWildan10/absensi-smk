@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 // ============================================================
 // API Route: POST /api/auth/login
 // Autentikasi berbasis Database (Prisma + bcrypt)

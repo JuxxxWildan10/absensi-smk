@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 // ============================================================
 // API Route: POST /api/cron/check-absentees
 // Memeriksa siswa yang belum absen setelah batas check-in dan mengirim notif Alpa

@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 // ============================================================
 // API Route: GET /api/school-config   → Ambil konfigurasi sekolah
 //            PUT /api/school-config   → Update konfigurasi sekolah

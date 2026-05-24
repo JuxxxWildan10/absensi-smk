@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 // ============================================================
 // API Route: GET  /api/notifications        → Ambil notif user
 //            POST /api/notifications        → Buat notif baru
