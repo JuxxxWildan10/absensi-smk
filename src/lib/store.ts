@@ -207,8 +207,22 @@ export const useStore = create<AppState>()(
           // Tarik audit logs
           if (dataAudit.success) set({ auditLogs: dataAudit.data });
 
-          // Tarik classes
-          if (dataClasses.success && dataClasses.data.length > 0) set({ classes: dataClasses.data });
+          // Tarik classes — jika DB kosong, seed dari state lokal agar sinkron ke semua device
+          if (dataClasses.success && dataClasses.data.length > 0) {
+            set({ classes: dataClasses.data });
+          } else if (dataClasses.success && dataClasses.data.length === 0) {
+            // DB belum punya kelas — push semua kelas lokal ke DB
+            const localClasses = get().classes;
+            try {
+              await Promise.all(localClasses.map((name: string) =>
+                fetch("/api/classes", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ name }),
+                }).catch(() => {})
+              ));
+            } catch (e) {}
+          }
 
           // Tarik notifikasi per-user secara terpisah (butuh userId)
           if (currentUser) {
