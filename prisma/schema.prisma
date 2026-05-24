@@ -130,3 +130,8 @@ model Announcement {
   authorId    String
   authorName  String
 }
+
+model ClassRoom {
+  id   String @id @default(uuid())
+  name String @unique
+}

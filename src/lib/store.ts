@@ -150,7 +150,7 @@ export const useStore = create<AppState>()(
           const currentUser = get().currentUser;
 
           // Jalankan semua fetch secara PARALEL untuk efisiensi maksimal
-          const [resSiswa, resUsers, resAbsen, resConfig, resPermits, resAnn, resEvents, resAudit] =
+          const [resSiswa, resUsers, resAbsen, resConfig, resPermits, resAnn, resEvents, resAudit, resClasses] =
             await Promise.all([
               fetch("/api/students"),
               fetch("/api/users"),
@@ -160,9 +160,10 @@ export const useStore = create<AppState>()(
               fetch("/api/announcements"),
               fetch("/api/events"),
               fetch("/api/audit-logs"),
+              fetch("/api/classes"),
             ]);
 
-          const [dataSiswa, dataUsers, dataAbsen, dataConfig, dataPermits, dataAnn, dataEvents, dataAudit] =
+          const [dataSiswa, dataUsers, dataAbsen, dataConfig, dataPermits, dataAnn, dataEvents, dataAudit, dataClasses] =
             await Promise.all([
               resSiswa.json(),
               resUsers.json(),
@@ -172,6 +173,7 @@ export const useStore = create<AppState>()(
               resAnn.json(),
               resEvents.json(),
               resAudit.json(),
+              resClasses.json(),
             ]);
 
           // Tarik data siswa — DB selalu dominan
@@ -204,6 +206,9 @@ export const useStore = create<AppState>()(
 
           // Tarik audit logs
           if (dataAudit.success) set({ auditLogs: dataAudit.data });
+
+          // Tarik classes
+          if (dataClasses.success && dataClasses.data.length > 0) set({ classes: dataClasses.data });
 
           // Tarik notifikasi per-user secara terpisah (butuh userId)
           if (currentUser) {
@@ -431,12 +436,24 @@ export const useStore = create<AppState>()(
         "XI DKV 1", "XI DKV 2", "XI DKV 3", "XI TSM 1", "XI TSM 2", "XI TSM 3",
         "XII DKV 1", "XII DKV 2", "XII DKV 3", "XII TSM 1", "XII TSM 2", "XII TSM 3",
       ],
-      addClass: (kelas) =>
-        set((s) => ({ classes: s.classes.includes(kelas) ? s.classes : [...s.classes, kelas] })),
-      updateClass: (oldName, newName) =>
-        set((s) => ({ classes: s.classes.map((c) => c === oldName ? newName : c) })),
-      deleteClass: (kelas) =>
-        set((s) => ({ classes: s.classes.filter((c) => c !== kelas) })),
+      addClass: async (kelas) => {
+        try {
+          await fetch("/api/classes", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: kelas }) });
+        } catch (e) {}
+        set((s) => ({ classes: s.classes.includes(kelas) ? s.classes : [...s.classes, kelas] }));
+      },
+      updateClass: async (oldName, newName) => {
+        try {
+          await fetch("/api/classes", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ oldName, newName }) });
+        } catch (e) {}
+        set((s) => ({ classes: s.classes.map((c) => c === oldName ? newName : c) }));
+      },
+      deleteClass: async (kelas) => {
+        try {
+          await fetch(`/api/classes?name=${encodeURIComponent(kelas)}`, { method: "DELETE" });
+        } catch (e) {}
+        set((s) => ({ classes: s.classes.filter((c) => c !== kelas) }));
+      },
 
       schedules: DUMMY_SCHEDULES,
       addSchedule: (schedule) =>
