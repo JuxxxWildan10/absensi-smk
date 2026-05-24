@@ -57,10 +57,13 @@ export async function PUT(req: NextRequest) {
       ? await prisma.schoolConfig.update({ where: { id: existing.id }, data })
       : await prisma.schoolConfig.create({ data: { id: "school-1", ...data } });
 
-    // Audit log
-    await prisma.auditLog.create({
-      data: { userId: "admin", userName: "Admin", role: "admin", action: "EDIT_PENGATURAN" },
-    });
+    // Cari user admin yang valid untuk AuditLog agar tidak kena foreign key error
+    const adminUser = await prisma.user.findFirst({ where: { role: "admin" } });
+    if (adminUser) {
+      await prisma.auditLog.create({
+        data: { userId: adminUser.id, userName: adminUser.name, role: "admin", action: "EDIT_PENGATURAN" },
+      });
+    }
 
     return NextResponse.json({ success: true, data: config });
   } catch (error) {
