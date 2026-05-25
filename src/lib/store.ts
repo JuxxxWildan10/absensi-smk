@@ -177,6 +177,13 @@ export const useStore = create<AppState>()(
               resClasses.json(),
             ]);
 
+          // Tangani jika Token tidak ditemukan atau kadaluarsa
+          if (dataClasses.message?.includes("Akses Ditolak") || dataUsers.message?.includes("Akses Ditolak")) {
+             set({ currentUser: null, isAuthenticated: false });
+             if (typeof window !== "undefined") window.location.href = "/login";
+             return;
+          }
+
           // Tarik data siswa — DB selalu dominan
           if (dataSiswa.success && dataSiswa.data.length > 0) {
             set({ students: dataSiswa.data });
@@ -441,21 +448,36 @@ export const useStore = create<AppState>()(
       ],
       addClass: async (kelas) => {
         try {
-          await fetch("/api/classes", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: kelas }) });
-        } catch (e) {}
-        set((s) => ({ classes: s.classes.includes(kelas) ? s.classes : [...s.classes, kelas] }));
+          const res = await fetch("/api/classes", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: kelas }) });
+          const data = await res.json();
+          if (res.ok && data.success) {
+            set((s) => ({ classes: s.classes.includes(kelas) ? s.classes : [...s.classes, kelas] }));
+          } else {
+            alert("Gagal menambah kelas: " + (data.message || "Kesalahan Server"));
+          }
+        } catch (e) { alert("Koneksi gagal"); }
       },
       updateClass: async (oldName, newName) => {
         try {
-          await fetch("/api/classes", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ oldName, newName }) });
-        } catch (e) {}
-        set((s) => ({ classes: s.classes.map((c) => c === oldName ? newName : c) }));
+          const res = await fetch("/api/classes", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ oldName, newName }) });
+          const data = await res.json();
+          if (res.ok && data.success) {
+            set((s) => ({ classes: s.classes.map((c) => c === oldName ? newName : c) }));
+          } else {
+            alert("Gagal mengubah kelas: " + (data.message || "Kesalahan Server"));
+          }
+        } catch (e) { alert("Koneksi gagal"); }
       },
       deleteClass: async (kelas) => {
         try {
-          await fetch(`/api/classes?name=${encodeURIComponent(kelas)}`, { method: "DELETE" });
-        } catch (e) {}
-        set((s) => ({ classes: s.classes.filter((c) => c !== kelas) }));
+          const res = await fetch(`/api/classes?name=${encodeURIComponent(kelas)}`, { method: "DELETE" });
+          const data = await res.json();
+          if (res.ok && data.success) {
+            set((s) => ({ classes: s.classes.filter((c) => c !== kelas) }));
+          } else {
+            alert("Gagal menghapus kelas: " + (data.message || "Kesalahan Server"));
+          }
+        } catch (e) { alert("Koneksi gagal"); }
       },
 
       schedules: DUMMY_SCHEDULES,

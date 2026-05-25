@@ -33,8 +33,13 @@ export async function POST(req: NextRequest) {
   try {
     const { name } = await req.json();
     if (!name) return NextResponse.json({ success: false }, { status: 400 });
-    await prisma.classRoom.create({ data: { name } }).catch(() => {});
-    return NextResponse.json({ success: true, data: name }, { status: 201 });
+    try {
+      await prisma.classRoom.create({ data: { name } });
+      return NextResponse.json({ success: true, data: name }, { status: 201 });
+    } catch (dbError: any) {
+      console.error("POST /api/classes error:", dbError);
+      return NextResponse.json({ success: false, message: dbError.message }, { status: 500 });
+    }
   } catch (error) {
     return NextResponse.json({ success: false }, { status: 500 });
   }
