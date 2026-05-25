@@ -150,17 +150,18 @@ export const useStore = create<AppState>()(
           const currentUser = get().currentUser;
 
           // Jalankan semua fetch secara PARALEL untuk efisiensi maksimal
+          const fetchOpts = { cache: "no-store" as RequestCache, headers: { "Cache-Control": "no-cache", "Pragma": "no-cache" } };
           const [resSiswa, resUsers, resAbsen, resConfig, resPermits, resAnn, resEvents, resAudit, resClasses] =
             await Promise.all([
-              fetch("/api/students"),
-              fetch("/api/users"),
-              fetch("/api/attendance"),
-              fetch("/api/school-config"),
-              fetch("/api/permits"),
-              fetch("/api/announcements"),
-              fetch("/api/events"),
-              fetch("/api/audit-logs"),
-              fetch("/api/classes"),
+              fetch(`/api/students?t=${Date.now()}`, fetchOpts),
+              fetch(`/api/users?t=${Date.now()}`, fetchOpts),
+              fetch(`/api/attendance?t=${Date.now()}`, fetchOpts),
+              fetch(`/api/school-config?t=${Date.now()}`, fetchOpts),
+              fetch(`/api/permits?t=${Date.now()}`, fetchOpts),
+              fetch(`/api/announcements?t=${Date.now()}`, fetchOpts),
+              fetch(`/api/events?t=${Date.now()}`, fetchOpts),
+              fetch(`/api/audit-logs?t=${Date.now()}`, fetchOpts),
+              fetch(`/api/classes?t=${Date.now()}`, fetchOpts),
             ]);
 
           const [dataSiswa, dataUsers, dataAbsen, dataConfig, dataPermits, dataAnn, dataEvents, dataAudit, dataClasses] =
@@ -215,7 +216,7 @@ export const useStore = create<AppState>()(
           // Tarik notifikasi per-user secara terpisah (butuh userId)
           if (currentUser) {
             try {
-              const resNotif = await fetch(`/api/notifications?userId=${currentUser.id}`);
+              const resNotif = await fetch(`/api/notifications?userId=${currentUser.id}&t=${Date.now()}`, fetchOpts);
               const dataNotif = await resNotif.json();
               if (dataNotif.success) set({ inAppNotifications: dataNotif.data });
             } catch {}
